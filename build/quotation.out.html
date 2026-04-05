@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ doc.doctype }} {{ doc.name }}</title>
+  <styles>
+    [[styles]]
+  </styles>
+</head>
+<body>
+  
+    <!-- Header -->
+  <div class="row block">
+    <div class="left">
+      <div class="doc-id">{{ doc.doctype }}: {{ doc.name }}</div>
+        <div class="muted">
+          PT TIMBOEL · Bantul, Yogyakarta, Indonesia<br>
+          pttimboel@pttimboel.com
+        </div>
+      </div>
+
+    <div class="mid">
+    {% set c = frappe.get_doc("Company", doc.company) %}
+    {% if c.company_logo %}
+      <img src="{{ c.company_logo }}" style="max-height:20mm; object-fit:contain;">
+    {% endif %}
+    </div>
+
+    <div class="right">
+      <div class="doc-id">Date: {{ doc.get("transaction_date") or doc.get("posting_date") or doc.get("date") or "" }}</div>
+      {% if doc.get("valid_till") %}
+        Valid Till: {{ doc.valid_till }}<br>
+      {% endif %}
+      {% if doc.get("due_date") %}
+        Due Date: {{ doc.due_date }}<br>
+      {% endif %}
+      {% if doc.get("po_no") %}
+        PO No: {{ doc.po_no }}<br>
+      {% endif %}
+      {% if doc.get("po_date") %}
+        PO Date: {{ doc.po_date }}<br>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Party block -->
+  <div class="row block">
+    <div class="left">
+      <span class="doc-id">Bill To</span><br>
+      {% if doc.get("customer_name") %}
+        {{ doc.customer_name }}<br>
+      {% elif doc.get("customer") %}
+        {{ doc.customer }}<br>
+      {% endif %}
+
+      {# Customer address (standard on Quotation/SO/SI) #}
+      {% if doc.get("customer_address") %}
+        {{ doc.address_display or "" }}
+      {% endif %}
+      {% if doc.get("contact_display") %}
+        <br>{{ doc.contact_display }}
+      {% endif %}
+      {% if doc.get("contact_mobile") %}
+        <br>{{ doc.contact_mobile }}
+      {% endif %}
+      {% if doc.get("contact_email") %}
+        <br>{{ doc.contact_email }}
+      {% endif %}
+    </div>
+
+    <div class="right">
+        {% if doc.get("shipping_address_name") %}
+            <div class="muted" style="text-align:left;">
+              <span class="doc-id">Ship To:</span><br>
+              {{ doc.shipping_address or "" }}
+            </div>
+        {% endif %}
+        <div>
+            {% if doc.get("shipping_rule") %}
+            <div class="meta-row">
+                <div class="meta-label">Shipping Rule:</div> <div class="meta-value">{{ doc.shipping_rule}}</div>
+            </div>
+            {% endif %}
+            {% if doc.get("incoterm") %}
+            <div class="meta-row">
+                <div class="meta-label">Incoterm:</div> <div class="meta-value">{{ doc.incoterm}}</div>
+            </div>
+            {% endif %}
+            {% if doc.get("named_place") %}
+            <div class="meta-row">
+                <div class="meta-label">Named Place:</div> <div class="meta-value">{{ doc.named_place}}</div>
+            </div>
+            {% endif %}
+            {% if doc.get("tc_name") %}
+            <div class="meta-row">
+                <div class="meta-label">Shipping Terms:</div> <div class="meta-value">{{ doc.tc_name}}</div>
+            </div>
+            {% endif %}
+       </div>
+    </div>
+  </div>
+
+<!-- Items -->
+  <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        <th>Description</th>
+        <th class="num">Qty</th>
+        <th class="num">UOM</th>
+        <th class="num">Rate</th>
+        <th class="num">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.items %}
+        <tr>
+          <td class="photocol">
+           {% if it.image %}
+            <img src="{{ it.image }}"
+                 style="max-width: 100%;
+                        max-height: 20mm;
+                        object-fit: contain;">
+           {% endif %}
+          </td>
+          <td class="itemcol">
+            <div class="doc-id">{{ it.item_code }}</div>
+            {% if it.item_name %}{{ it.item_name }}{% endif %}<br>
+            {% if it.custom_panjang and it.custom_lebar and it.custom_tinggi %} {{ it.custom_panjang }}x{{ it.custom_lebar }}x{{ it.custom_tinggi }}Cm {% endif %}
+            {% if it.custom_cbm %} {{ it.custom_cbm }}cbm {% endif %}
+            {% if it.weight_per_unit %} {{ it.weight_per_unit }}Kg {% endif %}
+          </td>
+          <td>
+            {% if it.description %}{{ it.description }}{% endif %}
+          </td>
+          <td class="num">{{ it.qty }}</td>
+          <td class="num">{{ it.uom or "" }}</td>
+          <td class="num">
+            {{ frappe.utils.fmt_money(it.net_rate, currency=doc.currency) if doc.get("currency") else it.net_rate }}
+            {% if it.discount_percentage > 0 %}
+            <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
+            {% endif %}
+          </td>
+          <td class="num">
+            {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  
+    <!-- Totals -->
+  <div class="row block" style="align-items:flex-start;">
+    <div class="left muted">
+      {% if doc.get("total_qty") %}
+        Total Qty: {{ doc.total_qty }}<br>
+      {% endif %}
+      {% if doc.get("custom_total_cbm") %}
+        Total CBM: {{ doc.custom_total_cbm }}<br>
+      {% endif %}
+      {% if doc.get("net_total") %}
+        Net Total: {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency) if doc.get("currency") else doc.net_total }}<br>
+      {% endif %}
+    </div>
+
+    <div class="right">
+      <div class="meta">
+        <div class="meta-row">
+    <div class="meta-label">Subtotal:</div>
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(doc.total, currency=doc.currency) if doc.get("currency") else doc.total }}
+    </div>
+  </div>
+
+  {% if doc.get("discount_amount") and doc.discount_amount|float != 0 %}
+    <div class="meta-row">
+      <div class="meta-label">Document Discount:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) if doc.get("currency") else doc.discount_amount }}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if doc.get("total_taxes_and_charges") and doc.total_taxes_and_charges|float != 0 %}
+    <div class="meta-row">
+      <div class="meta-label">Charges:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.total_taxes_and_charges, currency=doc.currency) if doc.get("currency") else doc.total_taxes_and_charges }}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="meta-row">
+    <div class="meta-label"><b>Grand Total:</b></div>
+    <div class="meta-value"><b>
+      {{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) if doc.get("currency") else doc.grand_total }}
+    </b></div>
+  </div>
+
+  {% if doc.get("rounded_total") and doc.rounded_total|float != 0 and doc.rounded_total != doc.grand_total %}
+    <div class="meta-row">
+      <div class="meta-label">Rounded Total:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.rounded_total, currency=doc.currency) if doc.get("currency") else doc.rounded_total }}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if doc.get("advance_paid") and doc.advance_paid|float != 0 %}
+    <div class="meta-row">
+      <div class="meta-label">Advance Paid:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.advance_paid, currency=doc.currency) if doc.get("currency") else doc.advance_paid }}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
+    <div class="meta-row">
+      <div class="meta-label">Outstanding:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.outstanding_amount, currency=doc.currency) if doc.get("currency") else doc.outstanding_amount }}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+    </div>
+  </div>
+</body>
+</html>

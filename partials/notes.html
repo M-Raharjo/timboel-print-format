@@ -1,0 +1,12 @@
+  {% if doc.get("remarks") or doc.get("terms") %}
+    <div class="block">
+      {% if doc.get("remarks") %}
+        <div class="doc-id">Remarks</div>
+        <div class="muted">{{ doc.remarks }}</div>
+      {% endif %}
+      {% if doc.get("terms") %}
+        <div class="doc-id" style="margin-top:6px;">Terms</div>
+        <div class="muted">{{ doc.terms }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
