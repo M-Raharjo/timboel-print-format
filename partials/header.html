@@ -1,0 +1,32 @@
+  <div class="row block">
+    <div class="left">
+      <div class="doc-id">{{ doc.doctype }}: {{ doc.name }}</div>
+        <div class="muted">
+          PT TIMBOEL · Bantul, Yogyakarta, Indonesia<br>
+          pttimboel@pttimboel.com
+        </div>
+      </div>
+
+    <div class="mid">
+    {% set c = frappe.get_doc("Company", doc.company) %}
+    {% if c.company_logo %}
+      <img src="{{ c.company_logo }}" style="max-height:20mm; object-fit:contain;">
+    {% endif %}
+    </div>
+
+    <div class="right">
+      <div class="doc-id">Date: {{ doc.get("transaction_date") or doc.get("posting_date") or doc.get("date") or "" }}</div>
+      {% if doc.get("valid_till") %}
+        Valid Till: {{ doc.valid_till }}<br>
+      {% endif %}
+      {% if doc.get("due_date") %}
+        Due Date: {{ doc.due_date }}<br>
+      {% endif %}
+      {% if doc.get("po_no") %}
+        PO No: {{ doc.po_no }}<br>
+      {% endif %}
+      {% if doc.get("po_date") %}
+        PO Date: {{ doc.po_date }}<br>
+      {% endif %}
+    </div>
+  </div>
