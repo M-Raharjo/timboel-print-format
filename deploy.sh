@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -ne 2 ]; then
-  echo "Usage: deploy_print_format.sh <print-format-name> <html-file>"
+BUILD_DIR="${1:-build}"
+MAP_FILE="${2:-print-format-map.txt}"
+
+if [ ! -d "$BUILD_DIR" ]; then
+  echo "Build directory not found: $BUILD_DIR"
   exit 1
 fi
 
-PRINT_FORMAT_NAME="$1"
-HTML_FILE="$2"
-
-if [ ! -f "$HTML_FILE" ]; then
-  echo "Missing file: $HTML_FILE"
+if [ ! -f "$MAP_FILE" ]; then
+  echo "Map file not found: $MAP_FILE"
   exit 1
 fi
 
@@ -19,22 +19,42 @@ if [ -z "${ERPNEXT_BASE_URL:-}" ] || [ -z "${ERPNEXT_API_KEY:-}" ] || [ -z "${ER
   exit 1
 fi
 
-ENCODED_NAME="$(python3 - <<'PY' "$PRINT_FORMAT_NAME"
+deploy_one() {
+  local print_format_name="$1"
+  local html_file="$2"
+
+  local encoded_name
+  encoded_name="$(python3 - <<'PY' "$print_format_name"
 import sys, urllib.parse
 print(urllib.parse.quote(sys.argv[1], safe=""))
 PY
 )"
 
-python3 - <<'PY' "$HTML_FILE" > /tmp/print-format-payload.json
+  python3 - <<'PY' "$html_file" > /tmp/print-format-payload.json
 import json, sys, pathlib
 html = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 print(json.dumps({"html": html}, ensure_ascii=False))
 PY
 
-curl --fail --silent --show-error --output /dev/null \
-  -X PUT "${ERPNEXT_BASE_URL}/api/resource/Print%20Format/${ENCODED_NAME}" \
-  -H "Authorization: token ${ERPNEXT_API_KEY}:${ERPNEXT_API_SECRET}" \
-  -H "Content-Type: application/json" \
-  --data @/tmp/print-format-payload.json
+  curl --fail --silent --show-error --output /dev/null \
+    -X PUT "${ERPNEXT_BASE_URL}/api/resource/Print%20Format/${encoded_name}" \
+    -H "Authorization: token ${ERPNEXT_API_KEY}:${ERPNEXT_API_SECRET}" \
+    -H "Content-Type: application/json" \
+    --data @/tmp/print-format-payload.json
 
-echo "Deployed: ${PRINT_FORMAT_NAME}"
+  echo "Deployed: ${print_format_name} <- ${html_file}"
+}
+
+while IFS='|' read -r filename print_format_name; do
+  [ -n "$filename" ] || continue
+  html_file="$BUILD_DIR/$filename"
+
+  if [ ! -f "$html_file" ]; then
+    echo "Skipping missing file: $html_file"
+    continue
+  fi
+
+  deploy_one "$print_format_name" "$html_file"
+done < "$MAP_FILE"
+
+echo "All done."
