@@ -1,0 +1,4 @@
+quotation.out.html|API Push Test
+sales-order.out.html|Sales Order V1
+sales-invoice.out.html|Sales Invoice V1
+purchase-order.out.html|Purchase Invoice V1
