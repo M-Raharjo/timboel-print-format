@@ -10,7 +10,7 @@ on:
       - "print-format-map.txt"
       - "partials/**"
       - "templates/**"
-      - ".github/workflows/deploy-print-formats.yml"
+      - ".github/workflows/deploy-print-format.yml"
   workflow_dispatch:
 
 permissions:
