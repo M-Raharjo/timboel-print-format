@@ -31,7 +31,7 @@ html = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 print(json.dumps({"html": html}, ensure_ascii=False))
 PY
 
-curl --fail --silent --show-error \
+curl --fail --silent --show-error --output /dev/null \
   -X PUT "${ERPNEXT_BASE_URL}/api/resource/Print%20Format/${ENCODED_NAME}" \
   -H "Authorization: token ${ERPNEXT_API_KEY}:${ERPNEXT_API_SECRET}" \
   -H "Content-Type: application/json" \
