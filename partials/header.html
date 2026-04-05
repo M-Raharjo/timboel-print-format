@@ -1,3 +1,4 @@
+  <!-- Header -->
   <div class="row block">
     <div class="left">
       <div class="doc-id">{{ doc.doctype }}: {{ doc.name }}</div>
@@ -28,5 +29,62 @@
       {% if doc.get("po_date") %}
         PO Date: {{ doc.po_date }}<br>
       {% endif %}
+    </div>
+  </div>
+
+  <!-- Party block -->
+  <div class="row block">
+    <div class="left">
+      <span class="doc-id">Bill To</span><br>
+      {% if doc.get("customer_name") %}
+        {{ doc.customer_name }}<br>
+      {% elif doc.get("customer") %}
+        {{ doc.customer }}<br>
+      {% endif %}
+
+      {# Customer address (standard on Quotation/SO/SI) #}
+      {% if doc.get("customer_address") %}
+        {{ doc.address_display or "" }}
+      {% endif %}
+      {% if doc.get("contact_display") %}
+        <br>{{ doc.contact_display }}
+      {% endif %}
+      {% if doc.get("contact_mobile") %}
+        <br>{{ doc.contact_mobile }}
+      {% endif %}
+      {% if doc.get("contact_email") %}
+        <br>{{ doc.contact_email }}
+      {% endif %}
+    </div>
+
+    <div class="right">
+        {% if doc.get("shipping_address_name") %}
+            <div class="muted" style="text-align:left;">
+              <span class="doc-id">Ship To:</span><br>
+              {{ doc.shipping_address or "" }}
+            </div>
+        {% endif %}
+        <div>
+            {% if doc.get("shipping_rule") %}
+            <div class="meta-row">
+                <div class="meta-label">Shipping Rule:</div> <div class="meta-value">{{ doc.shipping_rule}}</div>
+            </div>
+            {% endif %}
+            {% if doc.get("incoterm") %}
+            <div class="meta-row">
+                <div class="meta-label">Incoterm:</div> <div class="meta-value">{{ doc.incoterm}}</div>
+            </div>
+            {% endif %}
+            {% if doc.get("named_place") %}
+            <div class="meta-row">
+                <div class="meta-label">Named Place:</div> <div class="meta-value">{{ doc.named_place}}</div>
+            </div>
+            {% endif %}
+            {% if doc.get("tc_name") %}
+            <div class="meta-row">
+                <div class="meta-label">Shipping Terms:</div> <div class="meta-value">{{ doc.tc_name}}</div>
+            </div>
+            {% endif %}
+       </div>
     </div>
   </div>
