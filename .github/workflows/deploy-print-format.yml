@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -41,7 +41,7 @@ jobs:
           done
 
       - name: Upload built HTML
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: built-print-formats
           path: build/*.html
@@ -53,15 +53,15 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Download built HTML
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: built-print-formats
           path: build
