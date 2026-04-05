@@ -1,4 +1,5 @@
-    @page { size: A4; margin: 1mm; }
+<style>
+@page { size: A4; margin: 1mm; }
     body {
       margin: 1mm;
       padding: 0;
@@ -63,3 +64,4 @@
     .no-border td { border-bottom: none; }
 
     @media print { body { margin: 0; } }
+</style>
