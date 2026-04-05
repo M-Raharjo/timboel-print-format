@@ -3,12 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ doc.doctype }} {{ doc.name }}</title>
-  <styles>
-    [[styles]]
-  </styles>
+        @page { size: A4; margin: 1mm; }
+    body {
+      margin: 1mm;
+      padding: 0;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8pt;
+      color: #000;
+    }
+    /*div {*/
+    /*    border: 1px solid black;*/
+    /*}*/
+    
+    .print-format,
+    .print-format-wrapper,
+    .print-heading,
+    .page-break,
+    .page-break .print-format,
+    html, body {
+      margin: 5px !important;
+      padding: 5px !important;
+    }
+    
+    .print-format {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .row { display: flex; justify-content: space-between; gap: 8mm; }
+    .left { width: 45%; text-align: left; }
+    .mid  { width: 20%; text-align: center; }
+    .right{ width: 35%; text-align: right; }
+
+    .doc-id { font-size: 9pt; font-weight: bold; }
+    .muted { opacity: 0.9; }
+    .block { margin: 5px 0; }
+    .meta-row {font-size:8pt; display: flex; justify-content: space-between; }
+    .meta-label { font-weight: bold; text-align: left; }
+    .meta-value { text-align: right;}
+
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    th {
+      font-size: 9pt;
+      text-align: left;
+      border-bottom: 1px solid #000;
+    }
+    td {
+      font-size: 8pt;
+      
+    }
+    tr {
+      border-bottom: 1px dotted #999;
+    }
+
+    .num { text-align: right; white-space: nowrap; }
+    .itemcol { width: 35%; }
+    .photocol { width: 18%; }
+
+    .totals { width: 45%; }
+    .totals td { border-bottom: none; }
+    .label { text-align: left; }
+    .value { text-align: right; }
+
+    .no-border td { border-bottom: none; }
+
+    @media print { body { margin: 0; } }
 </head>
 <body>
-  
+  {% if doc.docstatus == 0 %}
+  <div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+  ">
+    DRAFT
+  </div>
+{% elif doc.docstatus == 2 %}
+  <div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+  ">
+    CANCELLED
+  </div>
+{% endif %}
     <!-- Header -->
   <div class="row block">
     <div class="left">
@@ -151,7 +239,19 @@
   </table>
 
 
-  
+    {% if doc.get("remarks") or doc.get("terms") %}
+    <div class="block">
+      {% if doc.get("remarks") %}
+        <div class="doc-id">Remarks</div>
+        <div class="muted">{{ doc.remarks }}</div>
+      {% endif %}
+      {% if doc.get("terms") %}
+        <div class="doc-id" style="margin-top:6px;">Terms</div>
+        <div class="muted">{{ doc.terms }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
+
     <!-- Totals -->
   <div class="row block" style="align-items:flex-start;">
     <div class="left muted">
