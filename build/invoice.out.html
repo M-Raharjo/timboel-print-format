@@ -226,15 +226,7 @@
           </td>
           <td class="num">{{ it.qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-          <td class="num">
-            {{ frappe.utils.fmt_money(it.net_rate, currency=doc.currency) if doc.get("cur
-            
-            rency") else it.net_rate }}
-           .
-            {% if it.discount_percentage > 0 %}
-            <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
-            {% endif %}
-          </td>
+          
           <td class="num">
             {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
           </td>
@@ -289,13 +281,17 @@
     </div>
   {% endif %}
 
-  {% if doc.get("total_taxes_and_charges") and doc.total_taxes_and_charges|float != 0 %}
-    <div class="meta-row">
-      <div class="meta-label">Charges:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.total_taxes_and_charges, currency=doc.currency) if doc.get("currency") else doc.total_taxes_and_charges }}
-      </div>
-    </div>
+  {% if doc.get("taxes") and doc.taxes|length %}
+    {% for tax in doc.taxes %}
+      {% if tax.tax_amount and tax.tax_amount|float != 0 %}
+        <div class="meta-row">
+          <div class="meta-label">{{ tax.description or "Charge" }}:</div>
+          <div class="meta-value">
+            {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) if doc.get("currency") else tax.tax_amount }}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
   {% endif %}
 
   <div class="meta-row">
