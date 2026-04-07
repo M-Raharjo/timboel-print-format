@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ doc.doctype }} {{ doc.name }}</title>
+    [[ styles ]]
+</head>
+<body>
+  [[ status-banner ]]
+  [[ header ]]
+
+<!-- Items -->
+  <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        <th>Description</th>
+        <th class="num">Qty</th>
+        <th class="num">UOM</th>
+        <th class="num">Rate</th>
+        <th class="num">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.items %}
+        <tr>
+          <td class="photocol">
+            [[ row-image ]]
+          </td>
+          <td class="itemcol">
+            <div class="doc-id">{{ it.item_code }}</div>
+            {% if it.item_name %}{{ it.item_name }}{% endif %}<br>
+            {% if it.custom_panjang and it.custom_lebar and it.custom_tinggi %} {{ it.custom_panjang }}x{{ it.custom_lebar }}x{{ it.custom_tinggi }}Cm {% endif %}
+            {% if it.custom_cbm %} {{ it.custom_cbm }}cbm {% endif %}
+            {% if it.weight_per_unit %} {{ it.weight_per_unit }}Kg {% endif %}
+          </td>
+          <td>
+            {% if it.description %}{{ it.description }}{% endif %}
+          </td>
+          <td class="num">{{ it.qty }}</td>
+          <td class="num">{{ it.uom or "" }}</td>
+          <td class="num">
+            {{ frappe.utils.fmt_money(it.net_rate, currency=doc.currency) if doc.get("cur
+            
+            rency") else it.net_rate }}
+           .
+            {% if it.discount_percentage > 0 %}
+            <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
+            {% endif %}
+          </td>
+          <td class="num">
+            {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  [[ notes ]]
+  [[ totals ]]
+</body>
+</html>
