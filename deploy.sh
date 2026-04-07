@@ -47,7 +47,7 @@ PY
   echo "$url"
 }
 
-while IFS='|' read -r filename print_format_name; do
+while IFS='|' read -r filename print_format_name || [ -n "$filename" ]; do
   [ -n "$filename" ] || continue
   html_file="$BUILD_DIR/$filename"
 
