@@ -43,6 +43,8 @@ PY
     --data @/tmp/print-format-payload.json
 
   echo "Deployed: ${print_format_name} <- ${html_file}"
+  url="${ERPNEXT_BASE_URL}/api/resource/Print%20Format/${encoded_name}"
+  echo "$url"
 }
 
 while IFS='|' read -r filename print_format_name; do

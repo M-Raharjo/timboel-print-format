@@ -207,12 +207,12 @@
       {% for it in doc.items %}
         <tr>
           <td class="photocol">
-           {% if it.image %}
-            <img src="{{ it.image }}"
-                 style="max-width: 100%;
-                        max-height: 20mm;
-                        object-fit: contain;">
-           {% endif %}
+            {% if it.image %}
+<img src="{{ it.image }}"
+    style="max-width: 100%;
+    max-height: 20mm;
+    object-fit: contain;">
+{% endif %}
           </td>
           <td class="itemcol">
             <div class="doc-id">{{ it.item_code }}</div>
