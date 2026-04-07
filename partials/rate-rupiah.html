@@ -1,5 +1,5 @@
           <td class="num">
-            {{ it.net_rate }}
+            {{ frappe.utils.fmt_money(it.rate, currency=doc.currency) if doc.get("currency") else it.rate }}
             {% if it.discount_amount > 0 %}
             <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
             {% endif %}
