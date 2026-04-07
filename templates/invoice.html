@@ -40,15 +40,7 @@
           </td>
           <td class="num">{{ it.qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-          <td class="num">
-            {{ frappe.utils.fmt_money(it.net_rate, currency=doc.currency) if doc.get("cur
-            
-            rency") else it.net_rate }}
-           .
-            {% if it.discount_percentage > 0 %}
-            <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
-            {% endif %}
-          </td>
+          [[ rate-rupiah ]]
           <td class="num">
             {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
           </td>
