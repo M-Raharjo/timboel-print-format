@@ -28,13 +28,7 @@
           <td class="photocol">
             [[ row-image ]]
           </td>
-          <td class="itemcol">
-            <div class="doc-id">{{ it.item_code }}</div>
-            {% if it.item_name %}{{ it.item_name }}{% endif %}<br>
-            {% if it.custom_panjang and it.custom_lebar and it.custom_tinggi %} {{ it.custom_panjang }}x{{ it.custom_lebar }}x{{ it.custom_tinggi }}Cm {% endif %}
-            {% if it.custom_cbm %} {{ it.custom_cbm }}cbm {% endif %}
-            {% if it.weight_per_unit %} {{ it.weight_per_unit }}Kg {% endif %}
-          </td>
+          [[ row-item ]]
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>

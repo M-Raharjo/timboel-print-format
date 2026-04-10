@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ doc.doctype }} {{ doc.name }}</title>
-    <style>
-@page { size: A4; margin: 1mm; }
+  <style>
+        @page { size: A4; margin: 1mm; }
     body {
       margin: 1mm;
       padding: 0;
@@ -69,7 +69,7 @@
     .no-border td { border-bottom: none; }
 
     @media print { body { margin: 0; } }
-</style>
+  </style>
 </head>
 <body>
   {% if doc.docstatus == 0 %}
@@ -207,12 +207,12 @@
       {% for it in doc.items %}
         <tr>
           <td class="photocol">
-            {% if it.image %}
-<img src="{{ it.image }}"
-    style="max-width: 100%;
-    max-height: 20mm;
-    object-fit: contain;">
-{% endif %}
+           {% if it.image %}
+            <img src="{{ it.image }}"
+                 style="max-width: 100%;
+                        max-height: 20mm;
+                        object-fit: contain;">
+           {% endif %}
           </td>
           <td class="itemcol">
             <div class="doc-id">{{ it.item_code }}</div>
@@ -286,17 +286,13 @@
     </div>
   {% endif %}
 
-  {% if doc.get("taxes") and doc.taxes|length %}
-    {% for tax in doc.taxes %}
-      {% if tax.tax_amount and tax.tax_amount|float != 0 %}
-        <div class="meta-row">
-          <div class="meta-label">{{ tax.description or "Charge" }}:</div>
-          <div class="meta-value">
-            {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) if doc.get("currency") else tax.tax_amount }}
-          </div>
-        </div>
-      {% endif %}
-    {% endfor %}
+  {% if doc.get("total_taxes_and_charges") and doc.total_taxes_and_charges|float != 0 %}
+    <div class="meta-row">
+      <div class="meta-label">Charges:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.total_taxes_and_charges, currency=doc.currency) if doc.get("currency") else doc.total_taxes_and_charges }}
+      </div>
+    </div>
   {% endif %}
 
   <div class="meta-row">
