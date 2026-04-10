@@ -215,18 +215,32 @@
 {% endif %}
           </td>
           <td class="itemcol">
-            <div class="doc-id">{{ it.item_code }}</div>
+    {% set include_in_website = frappe.db.get_value("Item", it.item_code, "custom_include_in_website") %}
+    {% set product_slug = (it.item_code or "") | lower | replace(" ", "-") | replace("/", "-") %}
+    {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
+        <div class="doc-id">{{ it.item_code }} {% if include_in_website %}
+            <a href="{{ product_url }}" target="_blank" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                ↗ View Larger Image
+            </a>
+            {% endif %}
+        </div>
             {% if it.item_name %}{{ it.item_name }}{% endif %}<br>
             {% if it.custom_panjang and it.custom_lebar and it.custom_tinggi %} {{ it.custom_panjang }}x{{ it.custom_lebar }}x{{ it.custom_tinggi }}Cm {% endif %}
             {% if it.custom_cbm %} {{ it.custom_cbm }}cbm {% endif %}
             {% if it.weight_per_unit %} {{ it.weight_per_unit }}Kg {% endif %}
-          </td>
+</td>
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
           <td class="num">{{ it.qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-          
+                    <td class="num">
+            {{ frappe.utils.fmt_money(it.rate, currency=doc.currency) if doc.get("currency") else it.rate }}
+            {% if it.discount_amount > 0 %}
+            <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
+            -{{ ('{:,.2f}'.format(it.discount_percentage or 0)).rstrip('0').rstrip('.') }} %
+            {% endif %}
+          </td>
           <td class="num">
             {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
           </td>
