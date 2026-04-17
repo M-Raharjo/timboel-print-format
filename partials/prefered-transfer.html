@@ -1,0 +1,10 @@
+{% if doc.custom_prefered_bank_account %}
+  {% set bank = frappe.get_doc("Bank Account", doc.custom_prefered_bank_account) %}
+  <div>
+    <strong>Bank:</strong> {{ bank.bank }}<br>
+    <strong>Account Name:</strong> {{ bank.account_name }}<br>
+    <strong>Account Number:</strong> {{ bank.bank_account_no }}<br>
+    <strong>IBAN:</strong> {{ bank.iban }}
+    <strong>Branch Code:</strong> {{ bank.branch_code }}
+  </div>
+{% endif %}
