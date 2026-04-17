@@ -4,7 +4,7 @@
     <strong>Bank:</strong> {{ bank.bank }}<br>
     <strong>Account Name:</strong> {{ bank.account_name }}<br>
     <strong>Account Number:</strong> {{ bank.bank_account_no }}<br>
-    <strong>IBAN:</strong> {{ bank.iban }}
-    <strong>Branch Code:</strong> {{ bank.branch_code }}
+    {% if bank.iban %}<strong>IBAN:</strong> {{ bank.iban }}<br>{% endif %}
+    {% if bank.branch_code %}<strong>Branch Code:</strong> {{ bank.branch_code }}{% endif %}
   </div>
 {% endif %}
