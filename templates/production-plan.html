@@ -18,7 +18,6 @@
         <th>Description</th>
         <th class="num">Qty</th>
         <th class="num">UOM</th>
-        <th class="num">Rate</th>
         <th class="num">Amount</th>
       </tr>
     </thead>
@@ -34,7 +33,6 @@
           </td>
           <td class="num">{{ it.qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-          [[ rate-rupiah ]]
           <td class="num">
             {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
           </td>
@@ -43,9 +41,6 @@
     </tbody>
   </table>
 
-
   [[ notes ]]
-  [[ totals ]]
-  [[ prefered transfer ]]
 </body>
 </html>

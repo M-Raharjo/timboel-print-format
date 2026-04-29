@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>{{ doc.doctype }} {{ doc.name }}</title>
+  <title></title>
     <style>
 @page { size: A4; margin: 1mm; }
     body {
@@ -130,10 +130,15 @@
       {% if doc.get("po_date") %}
         PO Date: {{ doc.po_date }}<br>
       {% endif %}
+      {% if doc.get("get_items_from") %}
+        Source: {{ doc.get_items_from }}<br>
+      {% endif %}
+      {% if doc.get("for_warehouse") %}
+        For WH: {{ doc.for_warehouse }}<br>
+      {% endif %}
     </div>
   </div>
-
-  <!-- Party block -->
+    <!-- Party block -->
   <div class="row block">
     <div class="left">
       <span class="doc-id">Bill To</span><br>
@@ -218,12 +223,12 @@
     {% set include_in_website = frappe.db.get_value("Item", it.item_code, "custom_include_in_website") %}
     {% set product_slug = (it.item_code or "") | lower | replace(" ", "-") | replace("/", "-") %}
     {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
-        <div class="doc-id">{{ it.item_code }} {% if include_in_website %}
-            <a href="{{ product_url }}" target="_blank" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
-                ↗ View Larger Image
-            </a>
-            {% endif %}
-        </div>
+        <div class="doc-id">{{ it.item_code }}<br>            
+            {% if include_in_website %}
+                <a href="{{ product_url }}" target="_blank" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                    ↗ View Larger Image
+                </a>
+            {% endif %}</div>
             {% if it.item_name %}{{ it.item_name }}{% endif %}<br>
             {% if it.custom_panjang and it.custom_lebar and it.custom_tinggi %} {{ it.custom_panjang }}x{{ it.custom_lebar }}x{{ it.custom_tinggi }}Cm {% endif %}
             {% if it.custom_cbm %} {{ it.custom_cbm }}cbm {% endif %}
@@ -345,5 +350,15 @@
 </div>
     </div>
   </div>
+  {% if doc.custom_prefered_bank_account %}
+  {% set bank = frappe.get_doc("Bank Account", doc.custom_prefered_bank_account) %}
+  <div>
+    <strong>Bank:</strong> {{ bank.bank }}<br>
+    <strong>Account Name:</strong> {{ bank.account_name }}<br>
+    <strong>Account Number:</strong> {{ bank.bank_account_no }}<br>
+    {% if bank.iban %}<strong>IBAN:</strong> {{ bank.iban }}<br>{% endif %}
+    {% if bank.branch_code %}<strong>Branch Code:</strong> {{ bank.branch_code }}{% endif %}
+  </div>
+{% endif %}
 </body>
 </html>
