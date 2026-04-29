@@ -16,13 +16,13 @@
          <th class="photocol">Image</th>
         <th class="itemcol">Item</th>
         <th>Description</th>
-        <th class="num">Qty</th>
+        <th class="num">Planned</th>
         <th class="num">UOM</th>
-        <th class="num">Amount</th>
+        <th>Target Warehouse</th>
       </tr>
     </thead>
     <tbody>
-      {% for it in doc.items %}
+      {% for it in doc.po_items %}
         <tr>
           <td class="photocol">
             [[ row-image ]]
@@ -31,11 +31,9 @@
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
-          <td class="num">{{ it.qty }}</td>
+          <td class="num">{{ it.planned_qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-          <td class="num">
-            {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
-          </td>
+          <td>{{ it.warehouse or "" }}</td>
         </tr>
       {% endfor %}
     </tbody>
