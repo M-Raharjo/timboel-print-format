@@ -1,0 +1,8 @@
+<div class="left muted">
+    {% if doc.get("total_qty") %}
+    Total Qty: {{ doc.total_qty }}<br>
+    {% endif %}
+    {% if doc.get("custom_total_cbm") %}
+    Total CBM: {{ doc.custom_total_cbm }}<br>
+    {% endif %}
+</div>

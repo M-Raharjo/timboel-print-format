@@ -222,12 +222,16 @@
     {% set include_in_website = frappe.db.get_value("Item", it.item_code, "custom_include_in_website") %}
     {% set product_slug = (it.item_code or "") | lower | replace(" ", "-") | replace("/", "-") %}
     {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
-        <div class="doc-id">{{ it.item_code }}<br>            
+            <div class="doc-id">
             {% if include_in_website %}
-                <a href="{{ product_url }}" target="_blank" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
-                    ↗ View Larger Image
+                <a href="{{ product_url }}" target="_blank" title="Click to open this product page" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                {{ it.item_code }}↗
                 </a>
-            {% endif %}</div>
+            {% else %}
+                {{ it.item_code }}
+            {% endif %}
+            <br>
+            </div>
             {% set item = frappe.db.get_value(
             "Item",
             it.item_code,
@@ -258,7 +262,7 @@
                     {{ item.weight_per_unit }}Kg
                 {% endif %}
             {% endif %}
-</td>
+</td> 
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
@@ -283,87 +287,13 @@
     </div>
   {% endif %}
 
-    <!-- Totals -->
-  <div class="row block" style="align-items:flex-start;">
-    <div class="left muted">
-      {% if doc.get("total_qty") %}
-        Total Qty: {{ doc.total_qty }}<br>
-      {% endif %}
-      {% if doc.get("custom_total_cbm") %}
-        Total CBM: {{ doc.custom_total_cbm }}<br>
-      {% endif %}
-      {% if doc.get("net_total") %}
-        Net Total: {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency) if doc.get("currency") else doc.net_total }}<br>
-      {% endif %}
-    </div>
-
-    <div class="right">
-      <div class="meta">
-        <div class="meta-row">
-    <div class="meta-label">Subtotal:</div>
-    <div class="meta-value">
-      {{ frappe.utils.fmt_money(doc.total, currency=doc.currency) if doc.get("currency") else doc.total }}
-    </div>
-  </div>
-
-  {% if doc.get("discount_amount") and doc.discount_amount|float != 0 %}
-    <div class="meta-row">
-      <div class="meta-label">Document Discount:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.discount_amount, currency=doc.currency) if doc.get("currency") else doc.discount_amount }}
-      </div>
-    </div>
-  {% endif %}
-
-  {% if doc.get("taxes") and doc.taxes|length %}
-    {% for tax in doc.taxes %}
-      {% if tax.tax_amount and tax.tax_amount|float != 0 %}
-        <div class="meta-row">
-          <div class="meta-label">{{ tax.description or "Charge" }}:</div>
-          <div class="meta-value">
-            {{ frappe.utils.fmt_money(tax.tax_amount, currency=doc.currency) if doc.get("currency") else tax.tax_amount }}
-          </div>
-        </div>
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-
-  <div class="meta-row">
-    <div class="meta-label"><b>Grand Total:</b></div>
-    <div class="meta-value"><b>
-      {{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) if doc.get("currency") else doc.grand_total }}
-    </b></div>
-  </div>
-
-  {% if doc.get("rounded_total") and doc.rounded_total|float != 0 and doc.rounded_total != doc.grand_total %}
-    <div class="meta-row">
-      <div class="meta-label">Rounded Total:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.rounded_total, currency=doc.currency) if doc.get("currency") else doc.rounded_total }}
-      </div>
-    </div>
-  {% endif %}
-
-  {% if doc.get("advance_paid") and doc.advance_paid|float != 0 %}
-    <div class="meta-row">
-      <div class="meta-label">Advance Paid:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.advance_paid, currency=doc.currency) if doc.get("currency") else doc.advance_paid }}
-      </div>
-    </div>
-  {% endif %}
-
-  {% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
-    <div class="meta-row">
-      <div class="meta-label">Outstanding:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.outstanding_amount, currency=doc.currency) if doc.get("currency") else doc.outstanding_amount }}
-      </div>
-    </div>
-  {% endif %}
-
+  <div class="left muted">
+    {% if doc.get("total_qty") %}
+    Total Qty: {{ doc.total_qty }}<br>
+    {% endif %}
+    {% if doc.get("custom_total_cbm") %}
+    Total CBM: {{ doc.custom_total_cbm }}<br>
+    {% endif %}
 </div>
-    </div>
-  </div>
 </body>
 </html>

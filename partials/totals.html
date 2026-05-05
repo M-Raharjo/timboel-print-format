@@ -1,16 +1,6 @@
   <!-- Totals -->
   <div class="row block" style="align-items:flex-start;">
-    <div class="left muted">
-      {% if doc.get("total_qty") %}
-        Total Qty: {{ doc.total_qty }}<br>
-      {% endif %}
-      {% if doc.get("custom_total_cbm") %}
-        Total CBM: {{ doc.custom_total_cbm }}<br>
-      {% endif %}
-      {% if doc.get("net_total") %}
-        Net Total: {{ frappe.utils.fmt_money(doc.net_total, currency=doc.currency) if doc.get("currency") else doc.net_total }}<br>
-      {% endif %}
-    </div>
+    [[ physical-total ]]
 
     <div class="right">
       <div class="meta">
