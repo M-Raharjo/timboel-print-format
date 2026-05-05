@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>[[ title ]]</title>
+    [[ styles ]]
+</head>
+<body>
+  [[ status-banner ]]
+  [[ header ]]
+  [[ party ]]
+
+<!-- Items -->
+  <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        <th>Description</th>
+        <th class="num">Qty</th>
+        <th class="num">UOM</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.items %}
+        <tr>
+          <td class="photocol">
+            [[ row-image ]]
+          </td>
+          [[ row-item ]]
+          <td>
+            {% if it.description %}{{ it.description }}{% endif %}
+          </td>
+          <td class="num">{{ it.qty }}</td>
+          <td class="num">{{ it.uom or "" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  [[ notes ]]
+  [[ totals ]]
+</body>
+</html>

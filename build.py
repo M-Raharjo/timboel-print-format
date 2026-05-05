@@ -40,10 +40,29 @@ def load_partials(partials_dir: Path) -> dict[str, str]:
 
     return partials
 
-def inject_partials(text: str, mapping: dict[str, str]) -> str:
-    for key, value in mapping.items():
-        text = text.replace(f"[[ {key} ]]", value)
-    return text
+def inject_partials(text: str, mapping: dict[str, str], source_name: str = "template") -> str:
+    token_re = re.compile(r"\[\[\s*([^][]+?)\s*\]\]")
+
+    seen_stack = []
+
+    def resolve_token(match):
+        key = match.group(1).strip()
+
+        if key not in mapping:
+            return match.group(0)
+
+        if key in seen_stack:
+            chain = " -> ".join(seen_stack + [key])
+            print(f"ERROR: circular partial reference in {source_name}: {chain}")
+            sys.exit(1)
+
+        seen_stack.append(key)
+        resolved = token_re.sub(resolve_token, mapping[key])
+        seen_stack.pop()
+
+        return resolved
+
+    return token_re.sub(resolve_token, text)
 
 def fail_on_unresolved_tokens(text: str, source_name: str) -> None:
     leftovers = sorted(set(re.findall(r"\[\[\s*[^][]+?\s*\]\]", text)))
@@ -65,7 +84,7 @@ def build_templates() -> None:
 
     for template_path in template_files:
         tpl = read(template_path)
-        html = inject_partials(tpl, partials)
+        html = inject_partials(tpl, partials, template_path.name)
         fail_on_unresolved_tokens(html, template_path.name)
 
         out_name = f"{template_path.stem}.out.html"
