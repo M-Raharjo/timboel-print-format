@@ -178,6 +178,31 @@
           <div class="meta-value">{{ doc.tc_name }}</div>
         </div>
       {% endif %}
+
+      {% if doc.get("transporter") %}
+        <div class="meta-row">
+          <div class="meta-label">Transporter:</div>
+          <div class="meta-value">{{ doc.transporter }}</div>
+        </div>
+      {% endif %}
+
+        {% if doc.get("driver") %}
+        <div class="meta-row">
+            <div class="meta-label">Driver:</div>
+            {% if doc.get("driver_name") %}
+            <div class="meta-value">{{ doc.driver_name }}</div>
+            {% else %}
+            <div class="meta-value">{{ doc.driver }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+       {% if doc.get("vehicle_no") %}
+        <div class="meta-row">
+          <div class="meta-label">Vehicle No:</div>
+          <div class="meta-value">{{ doc.vehicle_no }}</div>
+        </div>
+      {% endif %}
 </div>
   </div>
 </div>
@@ -212,7 +237,7 @@
             <div class="doc-id">
             {% if include_in_website %}
                 <a href="{{ product_url }}" target="_blank" title="Click to open this product page" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
-                {{ it.item_code }}[images↗]
+                {{ it.item_code }} [images↗]
                 </a>
             {% else %}
                 {{ it.item_code }}
@@ -281,6 +306,32 @@
     {% if doc.get("custom_total_cbm") %}
     Total CBM: {{ doc.custom_total_cbm }}<br>
     {% endif %}
+</div>
+
+<div class="row block">
+  <div class="left doc-id">
+    Prepared By
+    <br><br><br><br>
+    ____________________
+    <br>
+    
+  </div>
+
+  <div class="mid doc-id">
+    Transported By
+    <br><br><br><br>
+    ____________________
+    <br>
+    
+  </div>
+
+  <div class="right doc-id">
+    Received By
+    <br><br><br><br>
+    ____________________
+    <br>
+    
+  </div>
 </div>
 </body>
 </html>
