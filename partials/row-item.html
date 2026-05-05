@@ -2,12 +2,16 @@
     {% set include_in_website = frappe.db.get_value("Item", it.item_code, "custom_include_in_website") %}
     {% set product_slug = (it.item_code or "") | lower | replace(" ", "-") | replace("/", "-") %}
     {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
-        <div class="doc-id">{{ it.item_code }}<br>            
+            <div class="doc-id">
             {% if include_in_website %}
                 <a href="{{ product_url }}" target="_blank" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
-                    ↗ View Larger Image
+                {{ it.item_code }}↗
                 </a>
-            {% endif %}</div>
+            {% else %}
+                {{ it.item_code }}
+            {% endif %}
+            <br>
+            </div>
             {% set item = frappe.db.get_value(
             "Item",
             it.item_code,
