@@ -16,35 +16,7 @@
   <div class="right">
     [[ shipping-address ]]
 
-    <div class="shipping-meta">
-      {% if doc.get("shipping_rule") %}
-        <div class="meta-row">
-          <div class="meta-label">Shipping Rule:</div>
-          <div class="meta-value">{{ doc.shipping_rule }}</div>
-        </div>
-      {% endif %}
-
-      {% if doc.get("incoterm") %}
-        <div class="meta-row">
-          <div class="meta-label">Incoterm:</div>
-          <div class="meta-value">{{ doc.incoterm }}</div>
-        </div>
-      {% endif %}
-
-      {% if doc.get("named_place") %}
-        <div class="meta-row">
-          <div class="meta-label">Named Place:</div>
-          <div class="meta-value">{{ doc.named_place }}</div>
-        </div>
-      {% endif %}
-
-      {% if doc.get("tc_name") %}
-        <div class="meta-row">
-          <div class="meta-label">Shipping Terms:</div>
-          <div class="meta-value">{{ doc.tc_name }}</div>
-        </div>
-      {% endif %}
-    </div>
+    [[ shipping-meta ]]
   </div>
 </div>
 

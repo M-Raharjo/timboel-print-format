@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>{{ doc.doctype }} {{ doc.name }} {{doc.id}}</title>
     <style>
 @page { size: A4; margin: 1mm; }
     body {
@@ -73,6 +73,33 @@
 </head>
 <body>
     <!-- Header -->
+   {% if doc.docstatus == 0 %}
+  <div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+  ">
+    DRAFT
+  </div>
+{% elif doc.docstatus == 2 %}
+  <div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+  ">
+    CANCELLED
+  </div>
+{% endif %}
   <div class="row block">
     <div class="left">
       <div class="doc-id">{{ doc.doctype }}: {{ doc.name }}</div>
@@ -114,36 +141,15 @@
 <!-- Party block -->
 <div class="row block">
   <div class="left">
-          <span class="doc-id">Bill To</span><br>
-      {% if doc.get("customer_name") %}
-        {{ doc.customer_name }}<br>
-      {% elif doc.get("customer") %}
-        {{ doc.customer }}<br>
-      {% endif %}
-
-      {# Customer address (standard on Quotation/SO/SI) #}
-      {% if doc.get("customer_address") %}
-        {{ doc.address_display or "" }}
-      {% endif %}
-      {% if doc.get("contact_display") %}
-        <br>{{ doc.contact_display }}
-      {% endif %}
-      {% if doc.get("contact_mobile") %}
-        <br>{{ doc.contact_mobile }}
-      {% endif %}
-      {% if doc.get("contact_email") %}
-        <br>{{ doc.contact_email }}
-      {% endif %}
-  </div>
-
-  <div class="right">
     {% if doc.get("shipping_address_name") %}
     <div class="muted" style="text-align:left;">
         <span class="doc-id">Ship To:</span><br>
         {{ doc.shipping_address or "" }}
     </div>
 {% endif %}
+  </div>
 
+  <div class="right">
     <div class="shipping-meta">
       {% if doc.get("shipping_rule") %}
         <div class="meta-row">
@@ -172,7 +178,7 @@
           <div class="meta-value">{{ doc.tc_name }}</div>
         </div>
       {% endif %}
-    </div>
+</div>
   </div>
 </div>
 
@@ -206,7 +212,7 @@
             <div class="doc-id">
             {% if include_in_website %}
                 <a href="{{ product_url }}" target="_blank" title="Click to open this product page" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
-                {{ it.item_code }}↗
+                {{ it.item_code }}[images↗]
                 </a>
             {% else %}
                 {{ it.item_code }}
