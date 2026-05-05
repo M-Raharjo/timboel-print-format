@@ -1,0 +1,20 @@
+      <span class="doc-id">Bill To</span><br>
+      {% if doc.get("customer_name") %}
+        {{ doc.customer_name }}<br>
+      {% elif doc.get("customer") %}
+        {{ doc.customer }}<br>
+      {% endif %}
+
+      {# Customer address (standard on Quotation/SO/SI) #}
+      {% if doc.get("customer_address") %}
+        {{ doc.address_display or "" }}
+      {% endif %}
+      {% if doc.get("contact_display") %}
+        <br>{{ doc.contact_display }}
+      {% endif %}
+      {% if doc.get("contact_mobile") %}
+        <br>{{ doc.contact_mobile }}
+      {% endif %}
+      {% if doc.get("contact_email") %}
+        <br>{{ doc.contact_email }}
+      {% endif %}

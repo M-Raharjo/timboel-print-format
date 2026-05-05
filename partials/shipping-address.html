@@ -1,0 +1,6 @@
+{% if doc.get("shipping_address_name") %}
+    <div class="muted" style="text-align:left;">
+        <span class="doc-id">Ship To:</span><br>
+        {{ doc.shipping_address or "" }}
+    </div>
+{% endif %}
