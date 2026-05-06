@@ -1,0 +1,34 @@
+<script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  function renderQRCodes() {
+    var nodes = document.querySelectorAll(".qr-node");
+
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var text = el.getAttribute("data-qr") || "";
+
+      if (!text) continue;
+
+      el.innerHTML = "";
+
+      try {
+        new QRCode(el, {
+          text: text,
+          width: 120,
+          height: 120,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.error("QR render failed", e, text);
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", renderQRCodes);
+  } else {
+    renderQRCodes();
+  }
+})();
+</script>

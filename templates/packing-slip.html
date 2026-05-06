@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Packing Slip Labels</title> 
+    [[ styles ]]
+  </head>
+  <body>
+    <div class="print-format">
+      <!-- LABEL 1 -->
+      <div class="block">
+        <div class="row block">
+          <div class="left">
+            <div class="muted">CUSTOMER</div>
+            <div class="doc-id" style="font-size:4em; white-space: nowrap; overflow:hidden; text-overflow: ellipsis;">Bapak Irwan SK</div>
+          </div>
+          <div class="mid"></div>
+          <div class="right">
+            <div class="muted">CRATE</div>
+            <div class="doc-id" style="font-size:4em; white-space: nowrap; overflow:hidden; text-overflow: ellipsis;">1/2</div>
+          </div>
+        </div>
+        <div class="row block">
+          <div class="left">
+            <div class="block">
+              <div class="muted">TIMBOEL ITEM ID</div>
+              <h1> PPS-D1388A01-NSS </h1>
+            </div>
+            <div class="block">
+              <div class="muted">CUSTOMER ITEM ID</div>
+              <h2> CUST-ITEM-001 </h2>
+            </div>
+            <div class="block">
+              <div class="muted">QTY IN CRATE</div>
+              <h1> 1 </h1>
+            </div>
+          </div>
+          <div class="mid">
+            <div class="qr-node" data-qr="PPS-D1388A01-NSS"></div>
+            <div>testststststststststst</div>
+          </div>
+          <div class="right">
+            <div class="block">
+              <div class="muted">DESCRIPTION</div>
+              <h2> Pouncing Panther - M - Natural Silver Stainless - Wood Base <br> 140 x 20 x 430 <br> black silver TP <br> whatever </h2>
+            </div>
+          </div>
+        </div>
+        <hr> 
+        [[ qr-script ]]
+  </body>
+</html>
