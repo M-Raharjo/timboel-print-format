@@ -5,48 +5,136 @@
     <title>Packing Slip Labels</title> 
     [[ styles ]]
   </head>
+
   <body>
     <div class="print-format">
-      <!-- LABEL 1 -->
-      <div class="block">
-        <div class="row block">
-          <div class="left">
-            <div class="muted">CUSTOMER</div>
-            <div class="doc-id" style="font-size:4em; white-space: nowrap; overflow:hidden; text-overflow: ellipsis;">Bapak Irwan SK</div>
-          </div>
-          <div class="mid"></div>
-          <div class="right">
-            <div class="muted">CRATE</div>
-            <div class="doc-id" style="font-size:4em; white-space: nowrap; overflow:hidden; text-overflow: ellipsis;">1/2</div>
-          </div>
-        </div>
-        <div class="row block">
-          <div class="left">
-            <div class="block">
-              <div class="muted">TIMBOEL ITEM ID</div>
-              <h1> PPS-D1388A01-NSS </h1>
+
+      {% set packing_slips = frappe.get_all(
+        "Packing Slip",
+        filters={
+          "delivery_note": doc.name,
+          "docstatus": ["!=", 2]
+        },
+        fields=["name"],
+        order_by="creation asc"
+      ) %}
+
+      {% set total_crates = packing_slips | length %}
+
+      {% for ps_row in packing_slips %}
+        {% set ps = frappe.get_doc("Packing Slip", ps_row.name) %}
+        {% set crate_number = loop.index %}
+
+        {% for item in ps.items %}
+
+          {% set customer_item_id = frappe.db.get_value(
+            "Item Customer Detail",
+            {
+              "parent": item.item_code,
+              "customer_name": doc.customer
+            },
+            "ref_code"
+          ) %}
+
+          <div class="block" style="border-width: 2px 0 2px 0; border-style: solid; border-color: black;">
+            <div class="row block">
+              <div class="left">
+                <div class="muted">CUSTOMER</div>
+                <div class="doc-id" style="font-size:2rem; white-space: nowrap;">
+                  {{ doc.customer_name or doc.customer }}
+                </div>
+              </div>
+
+              <div class="mid"></div>
+
+              <div class="right">
+                <div class="muted">CRATE</div>
+                <div class="doc-id" style="font-size:2rem; white-space: nowrap;">
+                  {{ crate_number }}/{{ total_crates }}
+                </div>
+              </div>
             </div>
-            <div class="block">
-              <div class="muted">CUSTOMER ITEM ID</div>
-              <h2> CUST-ITEM-001 </h2>
-            </div>
-            <div class="block">
-              <div class="muted">QTY IN CRATE</div>
-              <h1> 1 </h1>
+
+            <div class="row block">
+              <div class="left">
+                <div class="block">
+                  <div class="muted">TIMBOEL ITEM ID</div>
+                  <div style="font-size: 1.25rem;">
+                    {{ item.item_code }}
+                  </div>
+                </div>
+                {% if customer_item_id %}
+                <div class="block">
+                  <div class="muted">CUSTOMER ITEM ID</div>
+                  <div style="font-size: 1.1rem;">
+                    {{ customer_item_id or "" }}
+                  </div>
+                </div>
+                {% endif %}
+
+                <div class="block">
+                  <div class="muted">QTY IN CRATE</div>
+                  <div style="font-size: 1rem;">
+                    {{ item.qty }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="mid">
+                <div class="qr-node" data-qr="{{ item.item_code }}"></div>
+                <div>{{ item.item_code }}</div>
+              </div>
+
+              <div class="right">
+                <div class="block">
+                  <div class="muted">DESCRIPTION</div>
+                  <div style="font-size: 1rem;">
+                    {% set item_master = frappe.db.get_value(
+                            "Item",
+                            item.item_code,
+                            [
+                            "item_name",
+                            "custom_panjang",
+                            "custom_lebar",
+                            "custom_tinggi",
+                            "custom_cbm",
+                            "weight_per_unit"
+                            ],
+                            as_dict=1
+                        ) %}
+
+                        {% if item_master %}
+                            {% if item_master.item_name %}
+                            {{ item_master.item_name }}<br>
+                            {% endif %}
+
+                            {% if item_master.custom_panjang and item_master.custom_lebar and item_master.custom_tinggi %}
+                            {{ item_master.custom_panjang }} x {{ item_master.custom_lebar }} x {{ item_master.custom_tinggi }} Cm<br>
+                            {% endif %}
+
+                            {% if item_master.custom_cbm %}
+                            {{ item_master.custom_cbm }} cbm 
+                            {% endif %}
+
+                            {% if item_master.weight_per_unit %}
+                            {{ item_master.weight_per_unit }} Kg
+                            {% endif %}
+                        {% endif %}
+
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="mid">
-            <div class="qr-node" data-qr="PPS-D1388A01-NSS"></div>
-            <div>testststststststststst</div>
-          </div>
-          <div class="right">
-            <div class="block">
-              <div class="muted">DESCRIPTION</div>
-              <h2> Pouncing Panther - M - Natural Silver Stainless - Wood Base <br> 140 x 20 x 430 <br> black silver TP <br> whatever </h2>
-            </div>
-          </div>
-        </div>
-        <hr> 
-        [[ qr-script ]]
+
+          <hr>
+
+        {% endfor %}
+
+      {% endfor %}
+
+    </div>
+
+    [[ qr-script ]]
   </body>
 </html>
