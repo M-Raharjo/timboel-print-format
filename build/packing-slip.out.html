@@ -115,7 +115,7 @@
 
       {% for ps_row in packing_slips %}
         {% set ps = frappe.get_doc("Packing Slip", ps_row.name) %}
-        {% set crate_number = loop.index %}
+        {% set crate_number = ps.get("from_case_no") %}
 
         {% for item in ps.items %}
 
@@ -128,16 +128,7 @@
             "ref_code"
           ) %}
 
-            <div class="block" style="
-              border-top: 2px solid black;
-              border-bottom: 2px solid black;
-              page-break-inside: avoid;
-              break-inside: avoid;
-              -webkit-column-break-inside: avoid;
-              display: block;
-              padding-top: 5mm;
-              padding-bottom: 5mm;
-            ">
+          <div class="block" style="border-width: 2px 0 2px 0; border-style: solid; border-color: black; break-inside: avoid-page; padding: 2mm 0 2mm 0;">
             <div class="row block">
               <div class="left">
                 <div class="muted">CUSTOMER</div>
@@ -227,6 +218,8 @@
               </div>
             </div>
           </div>
+
+          <hr>
 
         {% endfor %}
 
