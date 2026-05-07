@@ -128,7 +128,16 @@
             "ref_code"
           ) %}
 
-          <div class="block" style="border-width: 2px 0 2px 0; border-style: solid; border-color: black;">
+            <div class="block" style="
+              border-top: 2px solid black;
+              border-bottom: 2px solid black;
+              page-break-inside: avoid;
+              break-inside: avoid;
+              -webkit-column-break-inside: avoid;
+              display: block;
+              padding-top: 5mm;
+              padding-bottom: 5mm;
+            ">
             <div class="row block">
               <div class="left">
                 <div class="muted">CUSTOMER</div>
@@ -218,8 +227,6 @@
               </div>
             </div>
           </div>
-
-          <hr>
 
         {% endfor %}
 
