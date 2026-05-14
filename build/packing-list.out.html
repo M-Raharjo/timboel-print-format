@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ doc.doctype }} {{ doc.name }} {{doc.id}}</title>
+  <style>
+@page { size: A4; margin: 1mm; }
+    body {
+      margin: 1mm;
+      padding: 0;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 8pt;
+      color: #000;
+    }
+    /*div {
+      border: 1px solid black;
+    }*/
+    
+    .print-format,
+    .print-format-wrapper,
+    .print-heading,
+    .page-break,
+    .page-break .print-format,
+    html, body {
+      margin: 5px !important;
+      padding: 5px !important;
+    }
+    
+    .print-format {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8mm;
+    }
+
+    .left {
+      width: 40%;
+      text-align: left;
+    }
+
+    .mid {
+      width: 20%;
+      text-align: center;
+    }
+
+    .right {
+      width: 40%;
+      text-align: right;
+    }
+
+    .doc-id { font-size: 9pt; font-weight: bold; }
+    .muted { opacity: 0.9; }
+    .block { margin: 5px 0; }
+    .meta-row {font-size:8pt; display: flex; justify-content: space-between; }
+    .meta-label { font-weight: bold; text-align: left; }
+    .meta-value { text-align: right;}
+
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    th {
+      font-size: 9pt;
+      text-align: left;
+      border-bottom: 1px solid #000;
+    }
+    td {
+      font-size: 8pt;
+      
+    }
+    tr {
+      border-bottom: 1px dotted #999;
+    }
+
+    .num { text-align: right; white-space: nowrap; }
+    .itemcol { width: 35%; }
+    .photocol { width: 18%; }
+
+    .totals { width: 45%; }
+    .totals td { border-bottom: none; }
+    .label { text-align: left; }
+    .value { text-align: right; }
+
+    .no-border td { border-bottom: none; }
+
+    .qr-node {
+    display: inline-block;
+    }
+
+    .qr-node img,
+    .qr-node canvas {
+      display: block;
+      }
+
+    @media print { body { margin: 0; } }
+</style>
+</head>
+
+<body>
+    <!-- Header -->
+   {% if doc.docstatus == 0 %}
+  <div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+  ">
+    DRAFT
+  </div>
+{% elif doc.docstatus == 2 %}
+  <div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+  ">
+    CANCELLED
+  </div>
+{% endif %}
+  <div class="row block">
+    <div class="left">
+      <div class="doc-id">{{ doc.doctype }}: {{ doc.name }}</div>
+        <div class="muted">
+          PT TIMBOEL · Bantul, Yogyakarta, Indonesia<br>
+          official@pttimboel.com
+        </div>
+      </div>
+
+    <div class="mid">
+    {% set c = frappe.get_doc("Company", doc.company) %}
+    {% if c.company_logo %}
+      <img src="{{ c.company_logo }}" style="max-height:20mm; object-fit:contain;">
+    {% endif %}
+    </div>
+
+    <div class="right">
+      <div class="doc-id">Date: {{ doc.get("transaction_date") or doc.get("posting_date") or doc.get("date") or "" }}</div>
+      {% if doc.get("valid_till") %}
+        Valid Till: {{ doc.valid_till }}<br>
+      {% endif %}
+      {% if doc.get("due_date") %}
+        Due Date: {{ doc.due_date }}<br>
+      {% endif %}
+      {% if doc.get("po_no") %}
+        PO No: {{ doc.po_no }}<br>
+      {% endif %}
+      {% if doc.get("po_date") %}
+        PO Date: {{ doc.po_date }}<br>
+      {% endif %}
+      {% if doc.get("get_items_from") %}
+        Source: {{ doc.get_items_from }}<br>
+      {% endif %}
+      {% if doc.get("for_warehouse") %}
+        For WH: {{ doc.for_warehouse }}<br>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Party block -->
+  <div class="row block">
+    <div class="left">
+            <span class="doc-id">Bill To</span><br>
+      {% if doc.get("customer_name") %}
+        {{ doc.customer_name }}<br>
+      {% elif doc.get("customer") %}
+        {{ doc.customer }}<br>
+      {% endif %}
+
+      {# Customer address (standard on Quotation/SO/SI) #}
+      {% if doc.get("customer_address") %}
+        {{ doc.address_display or "" }}
+      {% endif %}
+      {% if doc.get("contact_display") %}
+        <br>{{ doc.contact_display }}
+      {% endif %}
+      {% if doc.get("contact_mobile") %}
+        <br>{{ doc.contact_mobile }}
+      {% endif %}
+      {% if doc.get("contact_email") %}
+        <br>{{ doc.contact_email }}
+      {% endif %}
+    </div>
+
+    <div class="right">
+      {% if doc.get("shipping_address_name") %}
+    <div class="muted" style="text-align:left;">
+        <span class="doc-id">Ship To:</span><br>
+        {{ doc.shipping_address or "" }}
+    </div>
+{% endif %}
+      <div class="shipping-meta">
+      {% if doc.get("shipping_rule") %}
+        <div class="meta-row">
+          <div class="meta-label">Shipping Rule:</div>
+          <div class="meta-value">{{ doc.shipping_rule }}</div>
+        </div>
+      {% endif %}
+
+      {% if doc.get("incoterm") %}
+        <div class="meta-row">
+          <div class="meta-label">Incoterm:</div>
+          <div class="meta-value">{{ doc.incoterm }}</div>
+        </div>
+      {% endif %}
+
+      {% if doc.get("named_place") %}
+        <div class="meta-row">
+          <div class="meta-label">Named Place:</div>
+          <div class="meta-value">{{ doc.named_place }}</div>
+        </div>
+      {% endif %}
+
+      {% if doc.get("tc_name") %}
+        <div class="meta-row">
+          <div class="meta-label">Shipping Terms:</div>
+          <div class="meta-value">{{ doc.tc_name }}</div>
+        </div>
+      {% endif %}
+
+      {% if doc.get("transporter") %}
+        <div class="meta-row">
+          <div class="meta-label">Transporter:</div>
+          <div class="meta-value">{{ doc.transporter }}</div>
+        </div>
+      {% endif %}
+
+        {% if doc.get("driver") %}
+        <div class="meta-row">
+            <div class="meta-label">Driver:</div>
+            {% if doc.get("driver_name") %}
+            <div class="meta-value">{{ doc.driver_name }}</div>
+            {% else %}
+            <div class="meta-value">{{ doc.driver }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+       {% if doc.get("vehicle_no") %}
+        <div class="meta-row">
+          <div class="meta-label">Vehicle No:</div>
+          <div class="meta-value">{{ doc.vehicle_no }}</div>
+        </div>
+      {% endif %}
+</div>
+    </div>
+  </div>
+
+{% set packing_slips = frappe.get_all(
+  "Packing Slip",
+  filters={
+    "delivery_note": doc.name,
+    "docstatus": ["!=", 2]
+  },
+  fields=["name", "docstatus"],
+  order_by="from_case_no asc, creation asc"
+) %}
+
+  {% set ns = namespace(
+    total_qty=0,
+    total_item_cbm=0,
+    total_box_cbm=0,
+    total_net_weight=0,
+    total_gross_weight=0
+  ) %}
+
+  <!-- Packing List -->
+  <table>
+    <thead>
+<tr>
+  <th class="num">Crate</th>
+  <th class="photocol">Image</th>
+  <th class="itemcol">Item</th>
+  <th>Description</th>
+  <th class="num">Qty</th>
+  <th>Box Data</th>
+
+</tr>
+    </thead>
+
+    <tbody>
+      {% for ps_row in packing_slips %}
+        {% set ps = frappe.get_doc("Packing Slip", ps_row.name) %}
+        {% set crate_number = ps.get("from_case_no") or loop.index %}
+
+        {% set box_l = ps.get("custom_panjang") %}
+        {% set box_w = ps.get("custom_lebar") %}
+        {% set box_h = ps.get("custom_tinggi") %}
+        {% set box_cbm = ps.get("custom_cbm") %}
+
+
+        {% set net_weight = ps.get("net_weight_pkg") or 0 %}
+        {% set gross_weight = ps.get("gross_weight_pkg") or 0 %}
+        {% set net_weight_uom = ps.get("net_weight_uom") or ps.get("weight_uom") or "Kg" %}
+        {% set gross_weight_uom = ps.get("gross_weight_uom") or ps.get("weight_uom") or "Kg" %}
+
+        {% for it in ps.items %}
+          {% set item_master = frappe.db.get_value(
+            "Item",
+            it.item_code,
+            [
+              "item_name",
+              "custom_panjang",
+              "custom_lebar",
+              "custom_tinggi",
+              "custom_cbm",
+              "weight_per_unit"
+            ],
+            as_dict=1
+          ) %}
+
+          {% set item_cbm = item_master.custom_cbm if item_master and item_master.custom_cbm else 0 %}
+
+          {% set ns.total_qty = ns.total_qty + ((it.qty or 0) | float) %}
+          {% set ns.total_item_cbm = ns.total_item_cbm + (((item_cbm or 0) | float) * ((it.qty or 0) | float)) %}
+
+          {% if loop.first %}
+            {% set ns.total_box_cbm = ns.total_box_cbm + ((box_cbm or 0) | float) %}
+            {% set ns.total_net_weight = ns.total_net_weight + ((net_weight or 0) | float) %}
+            {% set ns.total_gross_weight = ns.total_gross_weight + ((gross_weight or 0) | float) %}
+          {% endif %}
+
+          <tr>
+            <td class="num">
+              {{ crate_number }} <br>
+            </td>
+
+<td class="photocol">
+  <div style="position: relative; width: 100%; min-height: 20mm;">
+    {% set img = frappe.db.get_value("Item", it.item_code, "image") %}
+{% if img %}
+<img src="{{ img }}"
+    style="max-width: 100%;
+    max-height: 20mm;
+    object-fit: contain;">
+{% endif %}
+
+    {% if ps.docstatus == 0 %}
+      <div style="
+        position: absolute;
+        top: 5mm;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        border: 2px solid black;
+        background: white;
+        padding: 1mm 0;
+        transform: rotate(-20deg);
+      ">
+        DRAFT
+      </div>
+    {% endif %}
+  </div>
+</td>
+
+<td class="itemcol">
+    {% set include_in_website = frappe.db.get_value("Item", it.item_code, "custom_include_in_website") %}
+    {% set product_slug = (it.item_code or "") | lower | replace(" ", "-") | replace("/", "-") %}
+    {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
+            <div class="doc-id">
+            {% if include_in_website %}
+                <a href="{{ product_url }}" target="_blank" title="Click to open this product page" style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                {{ it.item_code }} [images↗]
+                </a>
+            {% else %}
+                {{ it.item_code }}
+            {% endif %}
+            <br>
+            </div>
+            {% set item = frappe.db.get_value(
+            "Item",
+            it.item_code,
+            [
+                "item_name",
+                "custom_panjang",
+                "custom_lebar",
+                "custom_tinggi",
+                "custom_cbm",
+                "weight_per_unit"
+            ],
+            as_dict=True) %}
+            
+            {% if item %}
+                {% if item.item_name %}
+                    {{ item.item_name }}<br>
+                {% endif %}
+
+                {% if item.custom_panjang and item.custom_lebar and item.custom_tinggi %}
+                    {{ item.custom_panjang }}x{{ item.custom_lebar }}x{{ item.custom_tinggi }}Cm
+                {% endif %}
+
+                {% if item.custom_cbm %}
+                    {{ item.custom_cbm }}cbm
+                {% endif %}
+
+                {% if item.weight_per_unit %}
+                    {{ item.weight_per_unit }}Kg
+                {% endif %}
+            {% endif %}
+</td>
+
+<td>
+  {% if it.description %}
+    {{ it.description | striptags }}
+  {% endif %}
+</td>
+
+<td class="num">
+{{ it.qty }} {{ it.uom or "" }}
+</td>
+
+
+            <td class="num">
+
+              <span class="doc-id">{{ ps.name }}</span> <br>
+
+              {% if box_l and box_w and box_h %}
+                {{ box_l }}x{{ box_w }}x{{ box_h }}Cm <br>
+              {% endif %}
+
+              {% if box_cbm %}
+                {{ "%.2f" | format(box_cbm | float) }}cbm<br>
+              {% endif %}
+
+              {% if net_weight %}
+                NW:{{ net_weight }}{{net_weight_uom}}
+              {% endif %}
+
+              {% if gross_weight %}
+                GW:{{ gross_weight }}{{gross_weight_uom}}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Packing Totals -->
+  <div class="row block" style="align-items:flex-start;">
+    <div class="left muted">
+      Total Crates: {{ packing_slips | length }}<br>
+      Total Qty: {{ "%.2f" | format(ns.total_qty | float) | replace(".00", "") }}<br>
+      Total Item CBM: {{ "%.3f" | format(ns.total_item_cbm | float) }}<br>
+      Total Box CBM: {{ "%.3f" | format(ns.total_box_cbm | float) }}<br>
+      Total Net Weight: {{ "%.2f" | format(ns.total_net_weight | float) }} Kg<br>
+      Total Gross Weight: {{ "%.2f" | format(ns.total_gross_weight | float) }} Kg
+    </div>
+
+    <div class="right">
+      <div class="meta">
+        <div class="meta-row">
+          <div class="meta-label">Delivery Note:</div>
+          <div class="meta-value">{{ doc.name }}</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-label">Customer:</div>
+          <div class="meta-value">{{ doc.customer_name or doc.customer }}</div>
+        </div>
+
+        {% if doc.get("posting_date") %}
+          <div class="meta-row">
+            <div class="meta-label">Posting Date:</div>
+            <div class="meta-value">{{ doc.posting_date }}</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+    {% if doc.get("remarks") or doc.get("terms") %}
+    <div class="block">
+      {% if doc.get("remarks") %}
+        <div class="doc-id">Remarks</div>
+        <div class="muted">{{ doc.remarks }}</div>
+      {% endif %}
+      {% if doc.get("terms") %}
+        <div class="doc-id" style="margin-top:6px;">Terms</div>
+        <div class="muted">{{ doc.terms }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</body>
+</html>

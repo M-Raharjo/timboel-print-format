@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>[[ title ]]</title>
+  [[ styles ]]
+</head>
+
+<body>
+  [[ header ]]
+
+  <!-- Party block -->
+  <div class="row block">
+    <div class="left">
+      [[ bill-address ]]
+    </div>
+
+    <div class="right">
+      [[ shipping-address ]]
+      [[ shipping-meta ]]
+    </div>
+  </div>
+
+{% set packing_slips = frappe.get_all(
+  "Packing Slip",
+  filters={
+    "delivery_note": doc.name,
+    "docstatus": ["!=", 2]
+  },
+  fields=["name", "docstatus"],
+  order_by="from_case_no asc, creation asc"
+) %}
+
+  {% set ns = namespace(
+    total_qty=0,
+    total_item_cbm=0,
+    total_box_cbm=0,
+    total_net_weight=0,
+    total_gross_weight=0
+  ) %}
+
+  <!-- Packing List -->
+  <table>
+    <thead>
+<tr>
+  <th class="num">Crate</th>
+  <th class="photocol">Image</th>
+  <th class="itemcol">Item</th>
+  <th>Description</th>
+  <th class="num">Qty</th>
+  <th>Box Data</th>
+
+</tr>
+    </thead>
+
+    <tbody>
+      {% for ps_row in packing_slips %}
+        {% set ps = frappe.get_doc("Packing Slip", ps_row.name) %}
+        {% set crate_number = ps.get("from_case_no") or loop.index %}
+
+        {% set box_l = ps.get("custom_panjang") %}
+        {% set box_w = ps.get("custom_lebar") %}
+        {% set box_h = ps.get("custom_tinggi") %}
+        {% set box_cbm = ps.get("custom_cbm") %}
+
+
+        {% set net_weight = ps.get("net_weight_pkg") or 0 %}
+        {% set gross_weight = ps.get("gross_weight_pkg") or 0 %}
+        {% set net_weight_uom = ps.get("net_weight_uom") or ps.get("weight_uom") or "Kg" %}
+        {% set gross_weight_uom = ps.get("gross_weight_uom") or ps.get("weight_uom") or "Kg" %}
+
+        {% for it in ps.items %}
+          {% set item_master = frappe.db.get_value(
+            "Item",
+            it.item_code,
+            [
+              "item_name",
+              "custom_panjang",
+              "custom_lebar",
+              "custom_tinggi",
+              "custom_cbm",
+              "weight_per_unit"
+            ],
+            as_dict=1
+          ) %}
+
+          {% set item_cbm = item_master.custom_cbm if item_master and item_master.custom_cbm else 0 %}
+
+          {% set ns.total_qty = ns.total_qty + ((it.qty or 0) | float) %}
+          {% set ns.total_item_cbm = ns.total_item_cbm + (((item_cbm or 0) | float) * ((it.qty or 0) | float)) %}
+
+          {% if loop.first %}
+            {% set ns.total_box_cbm = ns.total_box_cbm + ((box_cbm or 0) | float) %}
+            {% set ns.total_net_weight = ns.total_net_weight + ((net_weight or 0) | float) %}
+            {% set ns.total_gross_weight = ns.total_gross_weight + ((gross_weight or 0) | float) %}
+          {% endif %}
+
+          <tr>
+            <td class="num">
+              {{ crate_number }} <br>
+            </td>
+
+<td class="photocol">
+  <div style="position: relative; width: 100%; min-height: 20mm;">
+    [[ row-image ]]
+
+    {% if ps.docstatus == 0 %}
+      <div style="
+        position: absolute;
+        top: 5mm;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        border: 2px solid black;
+        background: white;
+        padding: 1mm 0;
+        transform: rotate(-20deg);
+      ">
+        DRAFT
+      </div>
+    {% endif %}
+  </div>
+</td>
+
+[[ row-item ]]
+
+<td>
+  {% if it.description %}
+    {{ it.description | striptags }}
+  {% endif %}
+</td>
+
+<td class="num">
+{{ it.qty }} {{ it.uom or "" }}
+</td>
+
+
+            <td class="num">
+
+              <span class="doc-id">{{ ps.name }}</span> <br>
+
+              {% if box_l and box_w and box_h %}
+                {{ box_l }}x{{ box_w }}x{{ box_h }}Cm <br>
+              {% endif %}
+
+              {% if box_cbm %}
+                {{ "%.2f" | format(box_cbm | float) }}cbm<br>
+              {% endif %}
+
+              {% if net_weight %}
+                NW:{{ net_weight }}{{net_weight_uom}}
+              {% endif %}
+
+              {% if gross_weight %}
+                GW:{{ gross_weight }}{{gross_weight_uom}}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Packing Totals -->
+  <div class="row block" style="align-items:flex-start;">
+    <div class="left muted">
+      Total Crates: {{ packing_slips | length }}<br>
+      Total Qty: {{ "%.2f" | format(ns.total_qty | float) | replace(".00", "") }}<br>
+      Total Item CBM: {{ "%.3f" | format(ns.total_item_cbm | float) }}<br>
+      Total Box CBM: {{ "%.3f" | format(ns.total_box_cbm | float) }}<br>
+      Total Net Weight: {{ "%.2f" | format(ns.total_net_weight | float) }} Kg<br>
+      Total Gross Weight: {{ "%.2f" | format(ns.total_gross_weight | float) }} Kg
+    </div>
+.
+Lifespan: Expect ~10 casts per mold with proper resin mixing and gentle handling.
+Mold Release: Using Mann Ease Release 200 can extend your mold's life - but it will change the finish from glassy to satin.
+Finishing: Even with minimal flashing, expect to sand and polish the 1-face and occasionally surrounding faces as the mold ages
+    <div class="right">
+      <div class="meta">
+        <div class="meta-row">
+          <div class="meta-label">Delivery Note:</div>
+          <div class="meta-value">{{ doc.name }}</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-label">Customer:</div>
+          <div class="meta-value">{{ doc.customer_name or doc.customer }}</div>
+        </div>
+
+        {% if doc.get("posting_date") %}
+          <div class="meta-row">
+            <div class="meta-label">Posting Date:</div>
+            <div class="meta-value">{{ doc.posting_date }}</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  [[ notes ]]
+</body>
+</html>

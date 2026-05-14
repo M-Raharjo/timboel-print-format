@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>[[ title ]]</title>
+    [[ styles ]]
+</head>
+<body>
+  [[ header ]]
+<!-- Party block -->
+<div class="row block">
+  <div class="left">
+  </div>
+
+  <div class="right">
+  </div>
+</div>
+
+<!-- Items -->
+  <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        <th>Description</th>
+        <th class="num">Qty</th>
+        <th class="num">UOM</th>
+        <th class="num">Rate</th>
+        <th class="num">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.items %}
+        <tr>
+          <td class="photocol">
+            [[ row-image ]]
+          </td>
+          [[ row-item ]]
+          <td>
+            {% if it.description %}{{ it.description }}{% endif %}
+          </td>
+          <td class="num">{{ it.qty }}</td>
+          <td class="num">{{ it.uom or "" }}</td>
+          [[ rate-rupiah ]]
+          <td class="num">
+            {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  [[ notes ]]
+  [[ totals ]]
+</body>
+</html>

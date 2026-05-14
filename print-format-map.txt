@@ -3,3 +3,4 @@ invoice.out.html|Sales Invoice V1
 production-plan.out.html|Production Plan V1
 delivery-note.out.html|Delivery Note V1
 packing-slip.out.html|Packing Slip V1
+pos-invoice.out.html|Pos Invoice V1
