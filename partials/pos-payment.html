@@ -1,0 +1,30 @@
+{% if doc.get("payments") and doc.payments|length %}
+  {% for p in doc.payments %}
+    {% if p.amount and p.amount|float != 0 %}
+      <div class="meta-row">
+        <div class="meta-label">{{ p.mode_of_payment }}:</div>
+        <div class="meta-value">
+          {{ frappe.utils.fmt_money(p.amount, currency=doc.currency) if doc.get("currency") else p.amount }}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if doc.get("paid_amount") and doc.paid_amount|float != 0 %}
+  <div class="meta-row">
+    <div class="meta-label">Paid Amount:</div>
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(doc.paid_amount, currency=doc.currency) if doc.get("currency") else doc.paid_amount }}
+    </div>
+  </div>
+{% endif %}
+
+{% if doc.get("change_amount") and doc.change_amount|float != 0 %}
+  <div class="meta-row">
+    <div class="meta-label">Change:</div>
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(doc.change_amount, currency=doc.currency) if doc.get("currency") else doc.change_amount }}
+    </div>
+  </div>
+{% endif %}

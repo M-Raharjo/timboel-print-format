@@ -163,6 +163,14 @@
       {% if doc.get("for_warehouse") %}
         For WH: {{ doc.for_warehouse }}<br>
       {% endif %}
+      {% if doc.get("for_warehouse") %}
+        For WH: {{ doc.for_warehouse }}<br>
+      {% endif %}
+      {% if doc.get("owner") %}
+        {% set cashier_name = frappe.db.get_value("User", doc.owner, "full_name") %}
+        Cashier: {{ cashier_name }}<br>
+      {% endif %}
+      
     </div>
   </div>
 
@@ -457,7 +465,10 @@
       Total Net Weight: {{ "%.2f" | format(ns.total_net_weight | float) }} Kg<br>
       Total Gross Weight: {{ "%.2f" | format(ns.total_gross_weight | float) }} Kg
     </div>
-
+.
+Lifespan: Expect ~10 casts per mold with proper resin mixing and gentle handling.
+Mold Release: Using Mann Ease Release 200 can extend your mold's life - but it will change the finish from glassy to satin.
+Finishing: Even with minimal flashing, expect to sand and polish the 1-face and occasionally surrounding faces as the mold ages
     <div class="right">
       <div class="meta">
         <div class="meta-row">

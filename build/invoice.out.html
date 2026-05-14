@@ -162,6 +162,14 @@
       {% if doc.get("for_warehouse") %}
         For WH: {{ doc.for_warehouse }}<br>
       {% endif %}
+      {% if doc.get("for_warehouse") %}
+        For WH: {{ doc.for_warehouse }}<br>
+      {% endif %}
+      {% if doc.get("owner") %}
+        {% set cashier_name = frappe.db.get_value("User", doc.owner, "full_name") %}
+        Cashier: {{ cashier_name }}<br>
+      {% endif %}
+      
     </div>
   </div>
 <!-- Party block -->
@@ -406,6 +414,46 @@
       {{ frappe.utils.fmt_money(doc.grand_total, currency=doc.currency) if doc.get("currency") else doc.grand_total }}
     </b></div>
   </div>
+
+  {% if doc.get("payments") and doc.payments|length %}
+  {% for p in doc.payments %}
+    {% if p.amount and p.amount|float != 0 %}
+      <div class="meta-row">
+        <div class="meta-label">{{ p.mode_of_payment }}:</div>
+        <div class="meta-value">
+          {{ frappe.utils.fmt_money(p.amount, currency=doc.currency) if doc.get("currency") else p.amount }}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if doc.get("paid_amount") and doc.paid_amount|float != 0 %}
+  <div class="meta-row">
+    <div class="meta-label">Paid Amount:</div>
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(doc.paid_amount, currency=doc.currency) if doc.get("currency") else doc.paid_amount }}
+    </div>
+  </div>
+{% endif %}
+
+{% if doc.get("change_amount") and doc.change_amount|float != 0 %}
+  <div class="meta-row">
+    <div class="meta-label">Change:</div>
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(doc.change_amount, currency=doc.currency) if doc.get("currency") else doc.change_amount }}
+    </div>
+  </div>
+{% endif %}
+
+{% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
+  <div class="meta-row">
+    <div class="meta-label">Outstanding:</div>
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(doc.outstanding_amount, currency=doc.currency) if doc.get("currency") else doc.outstanding_amount }}
+    </div>
+  </div>
+{% endif %}
 
   {% if doc.get("rounded_total") and doc.rounded_total|float != 0 and doc.rounded_total != doc.grand_total %}
     <div class="meta-row">

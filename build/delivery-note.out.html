@@ -162,6 +162,14 @@
       {% if doc.get("for_warehouse") %}
         For WH: {{ doc.for_warehouse }}<br>
       {% endif %}
+      {% if doc.get("for_warehouse") %}
+        For WH: {{ doc.for_warehouse }}<br>
+      {% endif %}
+      {% if doc.get("owner") %}
+        {% set cashier_name = frappe.db.get_value("User", doc.owner, "full_name") %}
+        Cashier: {{ cashier_name }}<br>
+      {% endif %}
+      
     </div>
   </div>
 <!-- Party block -->
