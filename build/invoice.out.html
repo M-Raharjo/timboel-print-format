@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>{{ doc.doctype }} {{ doc.name }} {{doc.id}}</title>
+  <title>{{ doc.doctype }} {{ doc.name }}</title>
     <style>
 @page { size: A4; margin: 1mm; }
     body {
@@ -162,12 +162,9 @@
       {% if doc.get("for_warehouse") %}
         For WH: {{ doc.for_warehouse }}<br>
       {% endif %}
-      {% if doc.get("for_warehouse") %}
-        For WH: {{ doc.for_warehouse }}<br>
-      {% endif %}
       {% if doc.get("owner") %}
         {% set cashier_name = frappe.db.get_value("User", doc.owner, "full_name") %}
-        Cashier: {{ cashier_name }}<br>
+        Cashier: {{ cashier_name or doc.owner }}<br>
       {% endif %}
       
     </div>
@@ -337,13 +334,13 @@
           </td>
           <td class="num">{{ it.qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-                    <td class="num">
-            {{ frappe.utils.fmt_money(it.rate, currency=doc.currency) if doc.get("currency") else it.rate }}
-            {% if it.discount_amount > 0 %}
-            <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
-            -{{ ('{:,.2f}'.format(it.discount_percentage or 0)).rstrip('0').rstrip('.') }} %
-            {% endif %}
-          </td>
+          <td class="num">
+  {{ frappe.utils.fmt_money(it.rate, currency=doc.currency) if doc.get("currency") else it.rate }}
+  {% if it.discount_amount > 0 %}
+  <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
+  -{{ ('{:,.2f}'.format(it.discount_percentage or 0)).rstrip('0').rstrip('.') }} %
+  {% endif %}
+</td>
           <td class="num">
             {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
           </td>
@@ -415,7 +412,16 @@
     </b></div>
   </div>
 
-  {% if doc.get("payments") and doc.payments|length %}
+  {% if doc.get("rounded_total") and doc.rounded_total|float != 0 and doc.rounded_total != doc.grand_total %}
+    <div class="meta-row">
+      <div class="meta-label">Rounded Total:</div>
+      <div class="meta-value">
+        {{ frappe.utils.fmt_money(doc.rounded_total, currency=doc.currency) if doc.get("currency") else doc.rounded_total }}
+      </div>
+    </div>
+  {% endif %}
+
+    {% if doc.get("payments") and doc.payments|length %}
   {% for p in doc.payments %}
     {% if p.amount and p.amount|float != 0 %}
       <div class="meta-row">
@@ -446,24 +452,6 @@
   </div>
 {% endif %}
 
-{% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
-  <div class="meta-row">
-    <div class="meta-label">Outstanding:</div>
-    <div class="meta-value">
-      {{ frappe.utils.fmt_money(doc.outstanding_amount, currency=doc.currency) if doc.get("currency") else doc.outstanding_amount }}
-    </div>
-  </div>
-{% endif %}
-
-  {% if doc.get("rounded_total") and doc.rounded_total|float != 0 and doc.rounded_total != doc.grand_total %}
-    <div class="meta-row">
-      <div class="meta-label">Rounded Total:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.rounded_total, currency=doc.currency) if doc.get("currency") else doc.rounded_total }}
-      </div>
-    </div>
-  {% endif %}
-
   {% if doc.get("advance_paid") and doc.advance_paid|float != 0 %}
     <div class="meta-row">
       <div class="meta-label">Advance Paid:</div>
@@ -473,7 +461,29 @@
     </div>
   {% endif %}
 
+
+
+
   {% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
+    <!-- Detailed payment advances -->
+{% if doc.get("advances") and doc.advances|length %}
+  <div class="meta-section">
+    <strong>Allocated Payments</strong>
+
+    {% for adv in doc.advances %}
+      {% if adv.allocated_amount and adv.allocated_amount|float != 0 %}
+        <div class="meta-row">
+          <div class="meta-label">
+            {{ adv.reference_name or "" }}:
+          </div>
+          <div class="meta-value">
+            {{ frappe.utils.fmt_money(adv.allocated_amount, currency=doc.currency) if doc.get("currency") else adv.allocated_amount }}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
     <div class="meta-row">
       <div class="meta-label">Outstanding:</div>
       <div class="meta-value">

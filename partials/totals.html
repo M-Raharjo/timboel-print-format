@@ -60,6 +60,27 @@
     </div>
   {% endif %}
 
+  <!-- Detailed payument advances -->
+{% if doc.get("advances") and doc.advances|length %}
+  <div class="meta-section">
+    <strong>Allocated Payments</strong>
+
+    {% for adv in doc.advances %}
+      {% if adv.allocated_amount and adv.allocated_amount|float != 0 %}
+        <div class="meta-row">
+          <div class="meta-label">
+            {{ adv.reference_name or "" }}:
+          </div>
+          <div class="meta-value">
+            {{ frappe.utils.fmt_money(adv.allocated_amount, currency=doc.currency) if doc.get("currency") else adv.allocated_amount }}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+
   {% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
     <div class="meta-row">
       <div class="meta-label">Outstanding:</div>
