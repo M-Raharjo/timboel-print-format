@@ -100,7 +100,9 @@
 
 <body>
     <!-- Header -->
-   {% if doc.docstatus == 0 %}
+   {% set is_submittable = frappe.get_meta(doc.doctype).is_submittable %}
+
+{% if is_submittable and doc.docstatus in [0, 2] %}
   <div style="
     width: 100%;
     text-align: center;
@@ -111,20 +113,7 @@
     padding: 3mm 0;
     margin-bottom: 4mm;
   ">
-    DRAFT
-  </div>
-{% elif doc.docstatus == 2 %}
-  <div style="
-    width: 100%;
-    text-align: center;
-    font-size: 20pt;
-    font-weight: bold;
-    letter-spacing: 2px;
-    border: 2px solid #000;
-    padding: 3mm 0;
-    margin-bottom: 4mm;
-  ">
-    CANCELLED
+    {{ "DRAFT" if doc.docstatus == 0 else "CANCELLED" }}
   </div>
 {% endif %}
   <div class="row block">
@@ -370,6 +359,15 @@
 </td>
 
 <td class="itemcol">
+    {% macro fmt_smart_float(value, precision=2) -%}
+        {%- set v = frappe.utils.flt(value, precision) -%}
+        {%- if v == v|int -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": 0}) }}
+        {%- else -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": precision}) }}
+        {%- endif -%}
+    {%- endmacro %}
+
     {% set include_in_website = frappe.db.get_value("Item", it.item_code, "custom_include_in_website") %}
     {% set product_slug = (it.item_code or "") | lower | replace(" ", "-") | replace("/", "-") %}
     {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
@@ -402,15 +400,15 @@
                 {% endif %}
 
                 {% if item.custom_panjang and item.custom_lebar and item.custom_tinggi %}
-                    {{ item.custom_panjang }}x{{ item.custom_lebar }}x{{ item.custom_tinggi }}Cm
+                    {{ fmt_smart_float(item.custom_panjang, 1) }} x {{ fmt_smart_float(item.custom_lebar, 1) }} x {{ fmt_smart_float(item.custom_tinggi, 1) }}Cm
                 {% endif %}
 
                 {% if item.custom_cbm %}
-                    {{ item.custom_cbm }}cbm
+                    {{ fmt_smart_float(item.custom_cbm, 3) }}cbm
                 {% endif %}
 
                 {% if item.weight_per_unit %}
-                    {{ item.weight_per_unit }}Kg
+                    {{ fmt_smart_float(item.weight_per_unit, 2) }}Kg
                 {% endif %}
             {% endif %}
 </td>

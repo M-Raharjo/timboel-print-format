@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>[[ title ]]</title>
+    [[ styles ]]
+</head>
+<body>
+  [[ header ]]
+
+<!-- Items -->
+
+{% set ns = namespace(has_note=false) %}
+
+{% for it in doc.table_acva %}
+  {% if it.note_to_customer and it.note_to_customer|striptags|trim %}
+    {% set ns.has_note = true %}
+  {% endif %}
+{% endfor %}
+
+  <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        
+        <th class="num">QTY</th>
+        {% if doc.show_price %}
+        <th class="num">Rate</th>
+        {% endif %}
+        {% if ns.has_note %}
+        <th>Note to Customer</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.table_acva %}
+        <tr>
+          <td class="photocol">
+            [[ row-image ]]
+          </td>
+          [[ row-item ]]
+          <td class="num">{{ it.qty }}</td>
+          {% if doc.show_price %}
+          <td class="num"> {{it.rate }}</td>
+          {% endif %}
+          {% if ns.has_note %}
+          <td> {% if it.note_to_customer %} {{ it.note_to_customer }} {% endif %} </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  [[ notes ]]
+</body>
+</html>

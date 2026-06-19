@@ -1,4 +1,6 @@
-{% if doc.docstatus == 0 %}
+{% set is_submittable = frappe.get_meta(doc.doctype).is_submittable %}
+
+{% if is_submittable and doc.docstatus in [0, 2] %}
   <div style="
     width: 100%;
     text-align: center;
@@ -9,19 +11,6 @@
     padding: 3mm 0;
     margin-bottom: 4mm;
   ">
-    DRAFT
-  </div>
-{% elif doc.docstatus == 2 %}
-  <div style="
-    width: 100%;
-    text-align: center;
-    font-size: 20pt;
-    font-weight: bold;
-    letter-spacing: 2px;
-    border: 2px solid #000;
-    padding: 3mm 0;
-    margin-bottom: 4mm;
-  ">
-    CANCELLED
+    {{ "DRAFT" if doc.docstatus == 0 else "CANCELLED" }}
   </div>
 {% endif %}
