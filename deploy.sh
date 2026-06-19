@@ -36,11 +36,21 @@ html = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 print(json.dumps({"html": html}, ensure_ascii=False))
 PY
 
-  curl --fail --silent --show-error --output /dev/null \
-    -X PUT "${ERPNEXT_BASE_URL}/api/resource/Print%20Format/${encoded_name}" \
-    -H "Authorization: token ${ERPNEXT_API_KEY}:${ERPNEXT_API_SECRET}" \
-    -H "Content-Type: application/json" \
-    --data @/tmp/print-format-payload.json
+local url
+url="${ERPNEXT_BASE_URL%/}/api/resource/Print%20Format/${encoded_name}"
+
+echo "Deploying to: $url"
+
+curl --fail --silent --show-error --location --output /tmp/print-format-response.json \
+  --connect-timeout 15 \
+  --max-time 120 \
+  --retry 5 \
+  --retry-delay 10 \
+  --retry-all-errors \
+  -X PUT "$url" \
+  -H "Authorization: token ${ERPNEXT_API_KEY}:${ERPNEXT_API_SECRET}" \
+  -H "Content-Type: application/json" \
+  --data @/tmp/print-format-payload.json
 
   echo "Deployed: ${print_format_name} <- ${html_file}"
   url="${ERPNEXT_BASE_URL}/api/resource/Print%20Format/${encoded_name}"
