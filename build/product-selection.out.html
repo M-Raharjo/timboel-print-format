@@ -238,7 +238,7 @@
                 {% endif %}
 
                 {% if item.custom_panjang and item.custom_lebar and item.custom_tinggi %}
-                    {{ fmt_smart_float(item.custom_panjang, 1) }} x {{ fmt_smart_float(item.custom_lebar, 1) }} x {{ fmt_smart_float(item.custom_tinggi, 1) }}Cm
+                    {{ fmt_smart_float(item.custom_panjang, 1) }}x{{ fmt_smart_float(item.custom_lebar, 1) }}x{{ fmt_smart_float(item.custom_tinggi, 1) }}Cm
                 {% endif %}
 
                 {% if item.custom_cbm %}
@@ -252,7 +252,7 @@
 </td>
           <td class="num">{{ it.qty }}</td>
           {% if doc.show_price %}
-          <td class="num"> {{it.rate }}</td>
+          <td class="num"> {{ frappe.utils.fmt_money(it.rate, currency="IDR", precision=0) }} </td>
           {% endif %}
           {% if ns.has_note %}
           <td> {% if it.note_to_customer %} {{ it.note_to_customer }} {% endif %} </td>

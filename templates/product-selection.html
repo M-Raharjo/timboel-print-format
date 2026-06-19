@@ -42,7 +42,7 @@
           [[ row-item ]]
           <td class="num">{{ it.qty }}</td>
           {% if doc.show_price %}
-          <td class="num"> {{it.rate }}</td>
+          <td class="num"> {{ frappe.utils.fmt_money(it.rate, currency="IDR", precision=0) }} </td>
           {% endif %}
           {% if ns.has_note %}
           <td> {% if it.note_to_customer %} {{ it.note_to_customer }} {% endif %} </td>
