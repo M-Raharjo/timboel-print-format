@@ -177,7 +177,7 @@
       <tr>
          <th class="photocol">Image</th>
         <th class="itemcol">Item</th>
-        
+        <th> Description </th>
         <th class="num">Available QTY</th>
         {% if doc.show_price %}
         <th class="num">Rate</th>
@@ -256,6 +256,7 @@
                 {% endif %}
             {% endif %}
 </td>
+          <td> {{ it.description }} </td>
           <td class="num">{{ it.qty }}</td>
           {% if doc.show_price %}
           <td class="num"> {{ frappe.utils.fmt_money(price_amount, currency=price_currency, precision=price_precision) }} </td>
