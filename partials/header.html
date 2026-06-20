@@ -38,7 +38,7 @@
       {% endif %}
       {% if doc.get("owner") %}
         {% set cashier_name = frappe.db.get_value("User", doc.owner, "full_name") %}
-        Cashier: {{ cashier_name or doc.owner }}<br>
+        Doc Owner: {{ cashier_name or doc.owner }}<br>
       {% endif %}
       
     </div>
