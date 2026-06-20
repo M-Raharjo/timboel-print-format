@@ -18,13 +18,14 @@
   {% endif %}
 {% endfor %}
 
+
   <table>
     <thead>
       <tr>
          <th class="photocol">Image</th>
         <th class="itemcol">Item</th>
         
-        <th class="num">QTY</th>
+        <th class="num">Available QTY</th>
         {% if doc.show_price %}
         <th class="num">Rate</th>
         {% endif %}
@@ -35,6 +36,9 @@
     </thead>
     <tbody>
       {% for it in doc.table_acva %}
+        {% set price_amount = frappe.utils.flt(it.rate or 0, 2) %}
+        {% set price_currency = doc.get("currency") or doc.get("company_currency") or "IDR" %}
+        {% set price_precision = 2 if price_amount != price_amount|int else 0 %}
         <tr>
           <td class="photocol">
             [[ row-image ]]
@@ -42,7 +46,7 @@
           [[ row-item ]]
           <td class="num">{{ it.qty }}</td>
           {% if doc.show_price %}
-          <td class="num"> {{ frappe.utils.fmt_money(it.rate, currency="IDR", precision=0) }} </td>
+          <td class="num"> {{ frappe.utils.fmt_money(price_amount, currency=price_currency, precision=price_precision) }} </td>
           {% endif %}
           {% if ns.has_note %}
           <td> {% if it.note_to_customer %} {{ it.note_to_customer }} {% endif %} </td>
