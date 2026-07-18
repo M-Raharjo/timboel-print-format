@@ -245,13 +245,13 @@
           </td>
           <td class="num">{{ it.qty }}</td>
           <td class="num">{{ it.uom or "" }}</td>
-          <td class="num">
+          
   {{ frappe.utils.fmt_money(it.rate, currency=doc.currency) if doc.get("currency") else it.rate }}
   {% if it.discount_amount > 0 %}
   <br><span style="text-decoration: line-through;">{{ frappe.utils.fmt_money(it.price_list_rate, currency=doc.currency) if doc.get("currency") else it.price_list_rate }} </span><br>
   -{{ ('{:,.2f}'.format(it.discount_percentage or 0)).rstrip('0').rstrip('.') }} %
   {% endif %}
-</td>
+
           <td class="num">
             {{ frappe.utils.fmt_money(it.net_amount, currency=doc.currency) if doc.get("currency") else it.net_amount }}
           </td>
