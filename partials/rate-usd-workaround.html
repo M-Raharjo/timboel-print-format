@@ -1,6 +1,17 @@
-{% set idr_per_usd = 16000 %}
+{% set exchange_rows = frappe.get_all(
+    "Currency Exchange",
+    filters={
+        "from_currency": "USD",
+        "to_currency": "IDR",
+        "date": ["<=", doc.posting_date or doc.transaction_date or frappe.utils.today()]
+    },
+    fields=["exchange_rate"],
+    order_by="date desc",
+    limit_page_length=1
+) %}
 
-<td class="num">
+{% set idr_per_usd = exchange_rows[0].exchange_rate if exchange_rows else 16000 %}
+
   {{ frappe.utils.fmt_money(
       (it.rate or 0) / idr_per_usd,
       currency="USD"
@@ -17,4 +28,3 @@
     <br>
     -{{ ('{:,.2f}'.format(it.discount_percentage or 0)).rstrip('0').rstrip('.') }}%
   {% endif %}
-</td>

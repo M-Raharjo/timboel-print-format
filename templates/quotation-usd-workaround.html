@@ -47,7 +47,10 @@
           <td class="num">{{ it.uom or "" }}</td>
           <td class="num">[[ rate-usd-workaround ]]</td>
           <td class="num">
-            {{ frappe.utils.fmt_money(it.net_amount, currency='USD') if doc.get("currency") else it.net_amount }}
+            {{ frappe.utils.fmt_money(
+                (it.net_amount or 0) / idr_per_usd,
+                currency="USD"
+            ) }}
           </td>
         </tr>
       {% endfor %}
