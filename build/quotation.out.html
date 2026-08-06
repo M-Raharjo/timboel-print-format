@@ -463,33 +463,49 @@
 
   <!-- Detailed payument advances -->
 {% if doc.get("advances") and doc.advances|length %}
-  <div class="meta-section">
-    <strong>Allocated Payments</strong>
+<div class="meta-section">
+  <strong>Allocated Payments</strong>
 
-    {% for adv in doc.advances %}
-      {% if adv.allocated_amount and adv.allocated_amount|float != 0 %}
-        <div class="meta-row">
-          <div class="meta-label">
-            {{ adv.reference_name or "" }}:
-          </div>
-          <div class="meta-value">
-            {{ frappe.utils.fmt_money(adv.allocated_amount, currency=doc.currency) if doc.get("currency") else adv.allocated_amount }}
-          </div>
+  {% for adv in doc.advances %}
+    {% if adv.allocated_amount and adv.allocated_amount|float != 0 %}
+      {% set allocated_in_doc_currency =
+        (adv.allocated_amount|float) / (doc.conversion_rate|float)
+      %}
+
+      <div class="meta-row">
+        <div class="meta-label">
+          {{ adv.reference_name or "" }}:
         </div>
-      {% endif %}
-    {% endfor %}
-  </div>
+
+        <div class="meta-value">
+          {{ frappe.utils.fmt_money(
+            allocated_in_doc_currency,
+            currency=doc.currency
+          ) }}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
 {% endif %}
 
 
-  {% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
-    <div class="meta-row">
-      <div class="meta-label">Outstanding:</div>
-      <div class="meta-value">
-        {{ frappe.utils.fmt_money(doc.outstanding_amount, currency=doc.currency) if doc.get("currency") else doc.outstanding_amount }}
-      </div>
+{% if doc.get("outstanding_amount") and doc.outstanding_amount|float != 0 %}
+  {% set outstanding_in_doc_currency =
+    (doc.outstanding_amount|float) / (doc.conversion_rate|float)
+  %}
+<strong>Outstanding</strong>
+  <div class="meta-row">
+    <div class="meta-label">Outstanding:</div>
+
+    <div class="meta-value">
+      {{ frappe.utils.fmt_money(
+        outstanding_in_doc_currency,
+        currency=doc.currency
+      ) }}
     </div>
-  {% endif %}
+  </div>
+{% endif %}
 
 </div>
     </div>
