@@ -1,0 +1,65 @@
+
+<td class="itemcol">
+    {% macro fmt_smart_float(value, precision=2) -%}
+        {%- set v = frappe.utils.flt(value, precision) -%}
+        {%- if v == v|int -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": 0}) }}
+        {%- else -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": precision}) }}
+        {%- endif -%}
+    {%- endmacro %}
+
+    {% set item_code = it.production_item %}
+
+    {% if item_code %}
+        {% set item = frappe.db.get_value(
+            "Item",
+            item_code,
+            [
+                "item_name",
+                "custom_include_in_website",
+                "custom_panjang",
+                "custom_lebar",
+                "custom_tinggi",
+                "custom_cbm",
+                "weight_per_unit"
+            ],
+            as_dict=True
+        ) %}
+
+        {% set product_slug = item_code | lower | replace(" ", "-") | replace("/", "-") %}
+        {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
+
+        <div class="doc-id">
+            {% if item and item.custom_include_in_website %}
+                <a href="{{ product_url }}"
+                   target="_blank"
+                   title="Click to open this product page"
+                   style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                    {{ item_code }} [images↗]
+                </a>
+            {% else %}
+                {{ item_code }}
+            {% endif %}
+            <br>
+        </div>
+
+        {% if item %}
+            {% if item.item_name %}
+                {{ item.item_name }}<br>
+            {% endif %}
+
+            {% if item.custom_panjang and item.custom_lebar and item.custom_tinggi %}
+                {{ fmt_smart_float(item.custom_panjang, 1) }}x{{ fmt_smart_float(item.custom_lebar, 1) }}x{{ fmt_smart_float(item.custom_tinggi, 1) }}Cm
+            {% endif %}
+
+            {% if item.custom_cbm %}
+                {{ fmt_smart_float(item.custom_cbm, 3) }}cbm
+            {% endif %}
+
+            {% if item.weight_per_unit %}
+                {{ fmt_smart_float(item.weight_per_unit, 2) }}Kg
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</td>

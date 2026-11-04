@@ -16,8 +16,6 @@
         <th class="itemcol">Item</th>
         <th>Description</th>
         <th class="num">Planned</th>
-        <th class="num">UOM</th>
-        <th>Target Warehouse</th>
       </tr>
     </thead>
     <tbody>
@@ -31,8 +29,61 @@
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
           <td class="num">{{ it.planned_qty }}</td>
-          <td class="num">{{ it.uom or "" }}</td>
-          <td>{{ it.warehouse or "" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+<!-- Sub-Assemblies -->
+
+    <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        <th>Description</th>
+        <th class="num">Planned</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.sub_assembly_items %}
+        <tr>
+          <td class="photocol">
+            [[ row-image ]]
+          </td>
+          [[ row-subassembly-item ]]
+          <td>
+            {% if it.description %}{{ it.description }}{% endif %}
+          </td>
+          <td class="num">{{ it.planned_qty }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  <!-- Material Requests -->
+
+    <table>
+    <thead>
+      <tr>
+         <th class="photocol">Image</th>
+        <th class="itemcol">Item</th>
+        <th>Description</th>
+        <th class="num">Planned</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in doc.mr_items %}
+        <tr>
+          <td class="photocol">
+            [[ row-image ]]
+          </td>
+          
+          <td>
+            {% if it.description %}{{ it.description }}{% endif %}
+          </td>
+          <td class="num">{{ it.planned_qty }}</td>
         </tr>
       {% endfor %}
     </tbody>
