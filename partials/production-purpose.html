@@ -1,0 +1,88 @@
+
+{# =====================================================
+   PRODUCTION PURPOSE
+   Supports Material Request and Sales Order sources
+   ===================================================== #}
+
+{% set ns = namespace(
+    mr_names=[],
+    sales_orders=[],
+    customers=[],
+    has_stock=false
+) %}
+
+{# 1. Legacy: Production Plan from Sales Orders #}
+{% for row in doc.get("sales_orders") or [] %}
+    {% if row.sales_order and row.sales_order not in ns.sales_orders %}
+        {% set _ = ns.sales_orders.append(row.sales_order) %}
+    {% endif %}
+{% endfor %}
+
+{# 2. Production Plan from Material Requests #}
+{% for row in doc.get("material_requests") or [] %}
+    {% if row.material_request and row.material_request not in ns.mr_names %}
+        {% set _ = ns.mr_names.append(row.material_request) %}
+    {% endif %}
+{% endfor %}
+
+{# Resolve Material Request Items to Sales Orders #}
+{% if ns.mr_names %}
+    {% set mr_items = frappe.get_all(
+        "Material Request Item",
+        filters={
+            "parent": ["in", ns.mr_names],
+            "parenttype": "Material Request"
+        },
+        fields=["sales_order"],
+        limit_page_length=0
+    ) %}
+
+    {% for row in mr_items %}
+        {% if row.sales_order %}
+            {% if row.sales_order not in ns.sales_orders %}
+                {% set _ = ns.sales_orders.append(row.sales_order) %}
+            {% endif %}
+        {% else %}
+            {% set ns.has_stock = true %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{# 3. Resolve unique customer names #}
+{% if ns.sales_orders %}
+    {% set orders = frappe.get_all(
+        "Sales Order",
+        filters={"name": ["in", ns.sales_orders]},
+        fields=["customer", "customer_name"],
+        limit_page_length=0
+    ) %}
+
+    {% for order in orders %}
+        {% set customer = order.customer_name or order.customer %}
+
+        {% if customer and customer not in ns.customers %}
+            {% set _ = ns.customers.append(customer) %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{# 4. Print banner #}
+<div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+">
+    {% if ns.customers %}
+        {{ ns.customers | join(", ") }}
+        {% if ns.has_stock %}
+            + STOCK
+        {% endif %}
+    {% else %}
+        STOCK
+    {% endif %}
+</div>

@@ -7,13 +7,13 @@
 </head>
 <body>
   [[ header ]]
-
+  [[ production-purpose ]]
 <!-- Items -->
   <table>
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item</th>
+        <th class="itemcol">Item Final</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -40,7 +40,7 @@
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item</th>
+        <th class="itemcol">Item Semi-Finished</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -55,7 +55,7 @@
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
-          <td class="num">{{ it.planned_qty }}</td>
+          <td class="num">{{ it.qty }} {{ it.uom }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -68,7 +68,7 @@
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item</th>
+        <th class="itemcol">Item Request</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -79,11 +79,11 @@
           <td class="photocol">
             [[ row-image ]]
           </td>
-          
+          [[ row-materialrequest-item ]]
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
-          <td class="num">{{ it.planned_qty }}</td>
+          <td class="num">{{ it.quantity }} {{it.uom }}</td>
         </tr>
       {% endfor %}
     </tbody>

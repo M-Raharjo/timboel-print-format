@@ -160,13 +160,101 @@
       {% endif %}
     </div>
   </div>
+  
+{# =====================================================
+   PRODUCTION PURPOSE
+   Supports Material Request and Sales Order sources
+   ===================================================== #}
+
+{% set ns = namespace(
+    mr_names=[],
+    sales_orders=[],
+    customers=[],
+    has_stock=false
+) %}
+
+{# 1. Legacy: Production Plan from Sales Orders #}
+{% for row in doc.get("sales_orders") or [] %}
+    {% if row.sales_order and row.sales_order not in ns.sales_orders %}
+        {% set _ = ns.sales_orders.append(row.sales_order) %}
+    {% endif %}
+{% endfor %}
+
+{# 2. Production Plan from Material Requests #}
+{% for row in doc.get("material_requests") or [] %}
+    {% if row.material_request and row.material_request not in ns.mr_names %}
+        {% set _ = ns.mr_names.append(row.material_request) %}
+    {% endif %}
+{% endfor %}
+
+{# Resolve Material Request Items to Sales Orders #}
+{% if ns.mr_names %}
+    {% set mr_items = frappe.get_all(
+        "Material Request Item",
+        filters={
+            "parent": ["in", ns.mr_names],
+            "parenttype": "Material Request"
+        },
+        fields=["sales_order"],
+        limit_page_length=0
+    ) %}
+
+    {% for row in mr_items %}
+        {% if row.sales_order %}
+            {% if row.sales_order not in ns.sales_orders %}
+                {% set _ = ns.sales_orders.append(row.sales_order) %}
+            {% endif %}
+        {% else %}
+            {% set ns.has_stock = true %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{# 3. Resolve unique customer names #}
+{% if ns.sales_orders %}
+    {% set orders = frappe.get_all(
+        "Sales Order",
+        filters={"name": ["in", ns.sales_orders]},
+        fields=["customer", "customer_name"],
+        limit_page_length=0
+    ) %}
+
+    {% for order in orders %}
+        {% set customer = order.customer_name or order.customer %}
+
+        {% if customer and customer not in ns.customers %}
+            {% set _ = ns.customers.append(customer) %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{# 4. Print banner #}
+<div style="
+    width: 100%;
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border: 2px solid #000;
+    padding: 3mm 0;
+    margin-bottom: 4mm;
+">
+    {% if ns.customers %}
+        {{ ns.customers | join(", ") }}
+        {% if ns.has_stock %}
+            + STOCK
+        {% endif %}
+    {% else %}
+        STOCK
+    {% endif %}
+</div>
 
 <!-- Items -->
   <table>
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item</th>
+        <th class="itemcol">Item Final</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -252,7 +340,7 @@
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item</th>
+        <th class="itemcol">Item Semi-Finished</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -270,10 +358,75 @@
 {% endif %}
           </td>
           
+<td class="itemcol">
+    {% macro fmt_smart_float(value, precision=2) -%}
+        {%- set v = frappe.utils.flt(value, precision) -%}
+        {%- if v == v|int -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": 0}) }}
+        {%- else -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": precision}) }}
+        {%- endif -%}
+    {%- endmacro %}
+
+    {% set item_code = it.production_item %}
+
+    {% if item_code %}
+        {% set item = frappe.db.get_value(
+            "Item",
+            item_code,
+            [
+                "item_name",
+                "custom_include_in_website",
+                "custom_panjang",
+                "custom_lebar",
+                "custom_tinggi",
+                "custom_cbm",
+                "weight_per_unit"
+            ],
+            as_dict=True
+        ) %}
+
+        {% set product_slug = item_code | lower | replace(" ", "-") | replace("/", "-") %}
+        {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
+
+        <div class="doc-id">
+            {% if item and item.custom_include_in_website %}
+                <a href="{{ product_url }}"
+                   target="_blank"
+                   title="Click to open this product page"
+                   style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                    {{ item_code }} [images↗]
+                </a>
+            {% else %}
+                {{ item_code }}
+            {% endif %}
+            <br>
+        </div>
+
+        {% if item %}
+            {% if item.item_name %}
+                {{ item.item_name }}<br>
+            {% endif %}
+
+            {% if item.custom_panjang and item.custom_lebar and item.custom_tinggi %}
+                {{ fmt_smart_float(item.custom_panjang, 1) }}x{{ fmt_smart_float(item.custom_lebar, 1) }}x{{ fmt_smart_float(item.custom_tinggi, 1) }}Cm
+            {% endif %}
+
+            {% if item.custom_cbm %}
+                {{ fmt_smart_float(item.custom_cbm, 3) }}cbm
+            {% endif %}
+
+            {% if item.weight_per_unit %}
+                {{ fmt_smart_float(item.weight_per_unit, 2) }}Kg
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</td>
+
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
-          <td class="num">{{ it.planned_qty }}</td>
+          <td class="num">{{ it.qty }} {{ it.uom }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -286,7 +439,7 @@
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item</th>
+        <th class="itemcol">Item Request</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -304,10 +457,75 @@
 {% endif %}
           </td>
           
+<td class="itemcol">
+    {% macro fmt_smart_float(value, precision=2) -%}
+        {%- set v = frappe.utils.flt(value, precision) -%}
+        {%- if v == v|int -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": 0}) }}
+        {%- else -%}
+            {{ frappe.format_value(v, {"fieldtype": "Float", "precision": precision}) }}
+        {%- endif -%}
+    {%- endmacro %}
+
+    {% set item_code = it.item_code %}
+
+    {% if item_code %}
+        {% set item = frappe.db.get_value(
+            "Item",
+            item_code,
+            [
+                "item_name",
+                "custom_include_in_website",
+                "custom_panjang",
+                "custom_lebar",
+                "custom_tinggi",
+                "custom_cbm",
+                "weight_per_unit"
+            ],
+            as_dict=True
+        ) %}
+
+        {% set product_slug = item_code | lower | replace(" ", "-") | replace("/", "-") %}
+        {% set product_url = "https://timboelart.com/products/" + product_slug + ".md/" %}
+
+        <div class="doc-id">
+            {% if item and item.custom_include_in_website %}
+                <a href="{{ product_url }}"
+                   target="_blank"
+                   title="Click to open this product page"
+                   style="color:#1565c0; text-decoration:underline; font-weight:bold;">
+                    {{ item_code }} [images↗]
+                </a>
+            {% else %}
+                {{ item_code }}
+            {% endif %}
+            <br>
+        </div>
+
+        {% if item %}
+            {% if item.item_name %}
+                {{ item.item_name }}<br>
+            {% endif %}
+
+            {% if item.custom_panjang and item.custom_lebar and item.custom_tinggi %}
+                {{ fmt_smart_float(item.custom_panjang, 1) }}x{{ fmt_smart_float(item.custom_lebar, 1) }}x{{ fmt_smart_float(item.custom_tinggi, 1) }}Cm
+            {% endif %}
+
+            {% if item.custom_cbm %}
+                {{ fmt_smart_float(item.custom_cbm, 3) }}cbm
+            {% endif %}
+
+            {% if item.weight_per_unit %}
+                {{ fmt_smart_float(item.weight_per_unit, 2) }}Kg
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</td>
+
           <td>
             {% if it.description %}{{ it.description }}{% endif %}
           </td>
-          <td class="num">{{ it.planned_qty }}</td>
+          <td class="num">{{ it.quantity }} {{it.uom }}</td>
         </tr>
       {% endfor %}
     </tbody>
