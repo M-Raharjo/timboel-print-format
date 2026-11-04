@@ -35,7 +35,7 @@
   </table>
 
 <!-- Sub-Assemblies -->
-
+{% if doc.sub_assembly_items %}
     <table>
     <thead>
       <tr>
@@ -60,15 +60,15 @@
       {% endfor %}
     </tbody>
   </table>
-
+{% endif %}
 
   <!-- Material Requests -->
-
+{% if doc.mr_items %}
     <table>
     <thead>
       <tr>
          <th class="photocol">Image</th>
-        <th class="itemcol">Item Request</th>
+        <th class="itemcol">Item Material</th>
         <th>Description</th>
         <th class="num">Planned</th>
       </tr>
@@ -88,6 +88,7 @@
       {% endfor %}
     </tbody>
   </table>
+{% endif %}
 
   [[ notes ]]
 </body>
