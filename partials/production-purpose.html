@@ -85,4 +85,8 @@
     {% else %}
         STOCK
     {% endif %}
+<br>
+    {% if doc.custom_deadline %}
+        Deadline: {{ doc.custom_deadline }}
+    {% endif %}
 </div>
